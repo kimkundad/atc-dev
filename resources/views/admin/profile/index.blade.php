@@ -22,15 +22,22 @@
         <div class="row g-5 g-xl-8">
           <div class="col-12">
             <div class="card">
+
+            {{-- คำนวณแท็บที่ต้อง active --}}
+            @php
+                $activeTab = $activeTab ?? ( $errors->account->any() ? 'account' : 'general' );
+                $activeTab = session('tab', $activeTab);
+            @endphp
+
               {{-- Tabs --}}
               <div class="card-header border-0 pt-6">
                 <ul class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0">
-                  <li class="nav-item">
-                    <a class="nav-link active" data-bs-toggle="tab" href="#tab_general">ข้อมูลทั่วไป</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab_account">ตั้งค่าบัญชี</a>
-                  </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $activeTab==='general' ? 'active' : '' }}" data-bs-toggle="tab" href="#tab_general">ข้อมูลทั่วไป</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $activeTab==='account' ? 'active' : '' }}" data-bs-toggle="tab" href="#tab_account">ตั้งค่าบัญชี</a>
+                </li>
                 </ul>
               </div>
 
@@ -38,7 +45,7 @@
                 <div class="tab-content" id="profileTabsContent">
 
                   {{-- TAB 1: ข้อมูลทั่วไป --}}
-                  <div class="tab-pane fade show active" id="tab_general" role="tabpanel">
+                  <div class="tab-pane fade {{ $activeTab==='general' ? 'show active' : '' }}" id="tab_general" role="tabpanel">
                     @if(session('success_general'))
                       <div class="alert alert-success mb-6">{{ session('success_general') }}</div>
                     @endif
@@ -73,7 +80,7 @@
                   </div>
 
                   {{-- TAB 2: ตั้งค่าบัญชี --}}
-                  <div class="tab-pane fade" id="tab_account" role="tabpanel">
+                  <div class="tab-pane fade {{ $activeTab==='account' ? 'show active' : '' }}" id="tab_account" role="tabpanel">
                     @if(session('success_account'))
                       <div class="alert alert-success mb-6">{{ session('success_account') }}</div>
                     @endif
@@ -86,7 +93,7 @@
                         <label class="form-label required">ชื่อบัญชี</label>
                         <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
                                value="{{ old('name', $user->name) }}">
-                        @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        @error('name','account')<div class="invalid-feedback">{{ $message }}</div>@enderror
                       </div>
 
                       <div class="mb-5">
@@ -94,13 +101,13 @@
                         <input type="password" name="current_password"
                                class="form-control @error('current_password') is-invalid @enderror"
                                placeholder="">
-                        @error('current_password')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        @error('current_password','account')<div class="invalid-feedback">{{ $message }}</div>@enderror
                       </div>
 
                       <div class="mb-5">
                         <label class="form-label">รหัสผ่านใหม่</label>
                         <input type="password" name="password" class="form-control @error('password') is-invalid @enderror">
-                        @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        @error('password','account')<div class="invalid-feedback">{{ $message }}</div>@enderror
                       </div>
 
                       <div class="mb-7">
