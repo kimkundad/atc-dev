@@ -25,6 +25,12 @@ class DatabaseSeeder extends Seeder
         // ]);
 
 
+        $this->call([
+        ProductCategorySeeder::class,
+        ProductSeeder::class,
+    ]);
+
+
         DB::table('roles')->insert([
             [
                 'name' => 'superadmin',
