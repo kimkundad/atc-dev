@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QRCodeController;
+use App\Http\Controllers\PublicQrController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,9 @@ Route::get('/', function () {
 })->middleware('auth');
 
 Auth::routes();
+
+Route::get('/qr/{code}', [PublicQrController::class, 'show'])
+    ->name('public.qr');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
