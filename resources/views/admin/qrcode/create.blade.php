@@ -62,7 +62,7 @@
                         <label class="form-label">ลิงก์ใช้งาน</label>
                         <input type="text" class="form-control" id="link_url" name="link_url"
                             placeholder="จะถูกสร้างจากรหัสอัตโนมัติ" value="{{ old('link_url') }}" readonly>
-                        <div class="form-text">ตัวอย่าง: {{ rtrim($qrBase,'/') }}/AAAA</div>
+                        <div class="form-text">ตัวอย่าง: {{ rtrim($qrBase,'/') }}/qr/AAAA</div>
 
                         <div class="form-check form-switch form-check-custom form-check-solid mt-3">
                             <input class="form-check-input"
@@ -183,12 +183,16 @@
 (function () {
   // ====== QR link & preview ======
   const QR_BASE = @json(rtrim($qrBase,'/'));
+  const QR_SEG  = 'qr'; // <<<<<< segment กลาง
   const codeEl   = document.getElementById('qr_code');
   const linkEl   = document.getElementById('link_url');
   const activeEl = document.getElementById('is_active');
   const qrBox    = document.getElementById('qrContainer');
 
-  function buildLinkFromCode(code){ code = (code||'').trim(); return code ? `${QR_BASE}/${encodeURIComponent(code)}` : ''; }
+  function buildLinkFromCode(code){
+    code = (code||'').trim();
+    return code ? `${QR_BASE}/${QR_SEG}/${encodeURIComponent(code)}` : '';
+  }
   function renderQR(){
     const url = (linkEl.value||'').trim();
     qrBox.innerHTML = '';

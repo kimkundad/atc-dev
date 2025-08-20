@@ -111,7 +111,7 @@ public function index(Request $request)
 
         $base  = rtrim(config('app.url'), '/');
         $code  = $validated['qr_code'];
-        $link  = $validated['link_url'] ?? ($base.'/'.$code);
+        $link  = $validated['link_url'] ?? ($base.'/qr/'.$code);
 
         \App\Models\QRCode::create([
             'qr_code'   => $code,
