@@ -1,7 +1,7 @@
 @extends('admin.layouts.template')
 
 @section('title')
-    <title>ATC</title>
+    <title>บริษัท เอ ที ซี ทราฟฟิค จำกัด</title>
 @stop
 
 @section('content')

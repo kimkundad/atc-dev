@@ -1,7 +1,7 @@
 @extends('admin.layouts.template')
 
 @section('title')
-  <title>บริษัท โหลดมาสเตอร์ โลจิสติกส์ จำกัด</title>
+  <title>บริษัท เอ ที ซี ทราฟฟิค จำกัด</title>
 @stop
 
 @section('stylesheet')
