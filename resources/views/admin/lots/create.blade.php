@@ -41,35 +41,47 @@
                                 <div class="card-body">
 
                                     {{-- รายละเอียดสินค้า --}}
-                                    <div class="border rounded p-6 mb-10">
-                                        <h4 class="fw-bold mb-5">รายละเอียดสินค้า</h4>
-                                        <div class="row g-5">
-                                            <div class="col-md-6">
-                                                <label class="form-label required">ประเภทสินค้า</label>
-                                                <select class="form-select" name="product_type" data-control="select2"
-                                                    data-hide-search="true">
-                                                    <option value="">เลือกประเภทสินค้า</option>
-                                                    <option value="steel" selected>เหล็ก</option>
-                                                    <option value="pole">เสาไฟฟ้า</option>
-                                                    <option value="guardrail">ราวกั้นอันตราย</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label required">สินค้า</label>
-                                                <select class="form-select" name="product_id" data-control="select2">
-                                                    <option value="">เลือกสินค้า</option>
-                                                    <option value="9706-060-01" selected>9706-060-01 - เสาไฟฟ้า 9 เมตร
-                                                        (แบบเทเปอร์)</option>
-                                                    <option value="9501-110-06">9501-110-06 - เสาไฟฟ้า 4 เมตร (แบบเทเปอร์)
-                                                    </option>
-                                                    <option value="9603-031-02">9603-031-02 - แผ่นราวกั้นอันตราย 3.2 มม.
-                                                    </option>
-                                                    <option value="9603-030-04">9603-030-04 - แผ่นราวกั้นอันตราย 2.5 มม.
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
+                                       {{-- รายละเอียดสินค้า --}}
+<div class="border rounded p-6 mb-10">
+    <h4 class="fw-bold mb-5">รายละเอียดสินค้า</h4>
+    <div class="row g-5">
+        <div class="col-md-6">
+            <label class="form-label required">ประเภทสินค้า</label>
+            <select class="form-select"
+                    name="category_id"
+                    id="category_id"
+                    data-control="select2"
+                    data-hide-search="true"
+                    data-products-url="{{ route('ajax.products-by-category', ['id' => 'ID_PLACEHOLDER']) }}"
+                    required>
+                <option value="">เลือกประเภทสินค้า</option>
+                @foreach($categories as $c)
+                    <option value="{{ $c->id }}" {{ old('category_id')==$c->id?'selected':'' }}>
+                        {{ $c->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label required">สินค้า</label>
+            <select class="form-select"
+                    name="product_id"
+                    id="product_id"
+                    data-control="select2"
+                    data-placeholder="เลือกสินค้า"
+                    {{ old('category_id') ? '' : 'disabled' }}
+                    required>
+                <option value="">เลือกสินค้า</option>
+                @foreach($products as $p)
+                    <option value="{{ $p->id }}" {{ old('product_id')==$p->id?'selected':'' }}>
+                        {{ $p->sku }} - {{ $p->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+    </div>
+</div>
 
                                     {{-- รายละเอียดการผลิต --}}
                                     <div class="border rounded p-6 mb-10">
@@ -83,10 +95,10 @@
                                             <div class="col-md-4">
                                                 <label class="form-label">วันที่ผลิต</label>
                                                 <div class="input-group">
-                                                    <input type="date" class="form-control" name="mfg_date"
-                                                        value="2022-09-14" />
-                                                    <input type="time" class="form-control" name="mfg_time"
-                                                        value="15:00" />
+                                                    <input type="text" class="form-control" id="mfg_date" name="mfg_date"
+                                                        value="{{ old('mfg_date') }}" placeholder="เลือกวันที่"/>
+                                                    <input type="text" class="form-control" id="mfg_time" name="mfg_time"
+                                                        value="{{ old('mfg_time') }}" placeholder="เลือกเวลา"/>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
@@ -114,13 +126,12 @@
                                         <div class="row g-5">
                                             <div class="col-md-4">
                                                 <label class="form-label">วันรับเข้า</label>
-                                                <select class="form-select" name="received_date" data-control="select2"
-                                                    data-hide-search="true">
-                                                    <option value="">เลือกวันรับเข้า</option>
-                                                    <option value="2022-09-14">14/09/2565</option>
-                                                    <option value="2022-09-15">15/09/2565</option>
-                                                    <option value="2022-09-17">17/09/2565</option>
-                                                </select>
+                                                <input type="text"
+                                                    class="form-control"
+                                                    id="received_date"
+                                                    name="received_date"
+                                                    value="{{ old('received_date') }}"
+                                                    placeholder="เลือกวันรับเข้า">
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="form-label">Supplier</label>
@@ -139,52 +150,19 @@
                                             </div>
 
                                             {{-- แนบไฟล์ --}}
+                                            {{-- แนบไฟล์ --}}
                                             <div class="col-md-3">
-                                                <label class="form-label">แนบไฟล์ใบเชอร์ชุบกัลวาไนซ์</label>
-                                                <div class="image-input image-input-outline" data-kt-image-input="true">
-                                                    <div class="image-input-wrapper w-150px h-150px"></div>
-                                                    <label
-                                                        class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
-                                                        data-kt-image-input-action="change" data-bs-toggle="tooltip"
-                                                        title="อัปโหลด">
-                                                        <i class="bi bi-pencil-fill"></i>
-                                                        <input type="file" name="factory_doc"
-                                                            accept=".png,.jpg,.jpeg,.pdf" />
-                                                        <input type="hidden" name="factory_doc_remove" />
-                                                    </label>
-                                                    <span
-                                                        class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
-                                                        data-kt-image-input-action="cancel" data-bs-toggle="tooltip"
-                                                        title="ยกเลิก">
-                                                        <i class="bi bi-x"></i>
-                                                    </span>
-                                                </div>
-                                                <div class="form-text">รองรับ .jpg .png .pdf</div>
+                                            <label class="form-label">แนบไฟล์ใบเชอร์ชุบกัลวาไนซ์</label>
+                                            <input type="file" name="galvanize_cert_file" class="form-control" accept=".png,.jpg,.jpeg,.pdf">
+                                            <div class="form-text">รองรับ .jpg .png .pdf</div>
+                                            </div>
+                                            <div class="col-md-3">
+                                            <label class="form-label">แนบไฟล์ใบเซอร์เหล็ก</label>
+                                            <input type="file" name="steel_cert_file" class="form-control" accept=".png,.jpg,.jpeg,.pdf">
+                                            <div class="form-text">รองรับ .jpg .png .pdf</div>
                                             </div>
 
-                                            <div class="col-md-3">
-                                                <label class="form-label">แนบไฟล์ใบเซอร์เหล็ก</label>
-                                                <br>
-                                                <div class="image-input image-input-outline" data-kt-image-input="true">
-                                                    <div class="image-input-wrapper w-150px h-150px"></div>
-                                                    <label
-                                                        class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
-                                                        data-kt-image-input-action="change" data-bs-toggle="tooltip"
-                                                        title="อัปโหลด">
-                                                        <i class="bi bi-pencil-fill"></i>
-                                                        <input type="file" name="factory_doc"
-                                                            accept=".png,.jpg,.jpeg,.pdf" />
-                                                        <input type="hidden" name="factory_doc_remove" />
-                                                    </label>
-                                                    <span
-                                                        class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
-                                                        data-kt-image-input-action="cancel" data-bs-toggle="tooltip"
-                                                        title="ยกเลิก">
-                                                        <i class="bi bi-x"></i>
-                                                    </span>
-                                                </div>
-                                                <div class="form-text">รองรับ .jpg .png .pdf</div>
-                                            </div>
+
                                         </div>
                                     </div>
 
@@ -216,6 +194,88 @@
 @endsection
 
 @section('scripts')
+<script>
+(function () {
+  const $ = window.jQuery; // Metronic มี jQuery อยู่แล้ว
+  const $cat = $('#category_id');
+  const $prd = $('#product_id');
+  const urlTpl = $cat.data('products-url'); // /admin/products/by-category/ID_PLACEHOLDER
+
+  function refreshSelect2($el) {
+    if ($ && $.fn.select2) $el.trigger('change.select2');
+  }
+
+  function renderProductOptions(items, selected = null) {
+    $prd.empty().append(new Option('เลือกสินค้า',''));
+    items.forEach(i => {
+      $prd.append(new Option(`${i.sku} - ${i.name}`, i.id, false, String(selected)===String(i.id)));
+    });
+    $prd.prop('disabled', items.length === 0);
+    refreshSelect2($prd);
+  }
+
+  async function loadProducts(categoryId, selected=null) {
+    renderProductOptions([]);                 // clear
+    $prd.prop('disabled', true);
+
+    if (!categoryId) return;                  // ไม่มีหมวด -> ว่างไว้
+
+    const url = urlTpl.replace('ID_PLACEHOLDER', categoryId);
+    try {
+      const res  = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      const data = await res.json();
+      renderProductOptions(data, selected);
+    } catch (err) {
+      console.error('Load products error', err);
+      renderProductOptions([]);              // กรณี error ให้คงว่าง
+    }
+  }
+
+  // เมื่อเปลี่ยนประเภท (รองรับทั้ง change และ select2:select)
+  $cat.on('change select2:select', function () {
+    loadProducts(this.value);
+  });
+
+  // ถ้ามีค่าเก่าจาก validation -> โหลดรายการตอนเปิดหน้า
+  @if(old('category_id'))
+    loadProducts("{{ old('category_id') }}", "{{ old('product_id') }}");
+  @endif
+})();
+</script>
 
 
-@stop('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // วันนี้ (Date object) สำหรับ defaultDate
+  const now = new Date();
+
+  // วันรับเข้า: date only, ส่งค่า Y-m-d แต่แสดง d/m/Y
+  flatpickr('#received_date', {
+    dateFormat: 'Y-m-d',   // ค่าที่ submit
+    altInput: true,
+    altFormat: 'd/m/Y',    // รูปแบบที่แสดงให้ผู้ใช้เห็น
+    defaultDate: now
+  });
+
+  // วันที่ผลิต: date only
+  flatpickr('#mfg_date', {
+    dateFormat: 'Y-m-d',
+    altInput: true,
+    altFormat: 'd/m/Y',
+    defaultDate: now
+  });
+
+  // เวลา: time only (24 ชม.), ค่าเริ่มต้น = เวลาปัจจุบัน
+  flatpickr('#mfg_time', {
+    enableTime: true,
+    noCalendar: true,
+    time_24hr: true,
+    dateFormat: 'H:i',
+    defaultDate: now
+  });
+});
+</script>
+
+@endsection
+
+

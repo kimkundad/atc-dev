@@ -37,21 +37,40 @@
 
         <div class="card-body pt-0">
 
+        @if ($errors->any())
+    <div class="alert alert-danger d-flex align-items-start mb-6">
+        <div>
+            <div class="fw-bold mb-1">กรอกข้อมูลไม่ถูกต้อง</div>
+            <ul class="mb-0 ps-3">
+                @foreach ($errors->all() as $err)
+                    <li>{{ $err }}</li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+@endif
+
             {{-- รายละเอียด --}}
             <div class="mb-6">
                 <label class="form-label fw-bold">รายละเอียด</label>
                 <div class="row g-5">
                     <div class="col-md-6">
                         <label class="form-label required">รหัส QR Code</label>
-                        <input type="text" class="form-control" id="qr_code" name="qr_code" value="AXRD" />
+                        <input type="text" class="form-control" id="qr_code" name="qr_code" value="{{ old('qr_code','') }}" />
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">ลิงก์ใช้งาน</label>
                         <input type="text" class="form-control" id="link_url" name="link_url"
-                               value="http://qr.atctraffic.co.th/AAAA">
-                        <div class="form-text">ตัวอย่าง: http://qr.atctraffic.co.th/AAAA</div>
+                            placeholder="จะถูกสร้างจากรหัสอัตโนมัติ" value="{{ old('link_url') }}" readonly>
+                        <div class="form-text">ตัวอย่าง: {{ rtrim($qrBase,'/') }}/AAAA</div>
+
                         <div class="form-check form-switch form-check-custom form-check-solid mt-3">
-                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked />
+                            <input class="form-check-input"
+                                type="checkbox"
+                                id="is_active"
+                                name="is_active"
+                                value="1"
+                                {{ old('is_active', true) ? 'checked' : '' }}>
                             <label class="form-check-label" for="is_active">เปิดใช้งาน</label>
                         </div>
                     </div>
@@ -61,25 +80,27 @@
             <div class="separator my-6"></div>
 
             {{-- ข้อมูลล็อตนัมเบอร์ --}}
-            <div class="mb-6">
-                <label class="form-label fw-bold">ข้อมูลล็อตนัมเบอร์</label>
-                <div class="row g-5">
-                    <div class="col-md-6">
-                        <label class="form-label">เลือกประเภทสินค้า</label>
-                        <select class="form-select" id="product_type" data-control="select2" data-hide-search="true">
-                            <option value="guardrail" selected>ราวกั้นอันตราย</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">เลือกล็อตนัมเบอร์</label>
-                        <select class="form-select" id="lot_no" data-control="select2" data-hide-search="true">
-                            <option value="250701001" selected>250701001</option>
-                            <option value="250701002">250701002</option>
-                            <option value="68080021">68080021</option>
-                        </select>
-                    </div>
+            <div class="row g-5">
+            <div class="col-md-6">
+                <label class="form-label">เลือกประเภทสินค้า</label>
+                <select class="form-select" id="product_type" name="category_id"
+                        data-control="select2" data-hide-search="true">
+                    <option value="">-- เลือกประเภท --</option>
+                    @foreach($categories as $c)
+                        <option value="{{ $c->id }}">{{ $c->name }}</option>
+                    @endforeach
+                </select>
                 </div>
-            </div>
+
+                <div class="col-md-6">
+                <label class="form-label">เลือกล็อตนัมเบอร์</label>
+                <select class="form-select" id="lot_no" name="lot_id"
+                        data-control="select2" data-hide-search="true">
+                    <option value="">-- เลือกล็อต --</option>
+                    {{-- ไม่ใส่รายการล่วงหน้า ปล่อยให้ AJAX เติม --}}
+                </select>
+                </div>
+                </div>
 
             <div class="separator my-6"></div>
 
@@ -90,25 +111,23 @@
                     <div class="col-md-6">
                         <div class="d-flex justify-content-between mb-3">
                             <span class="text-gray-600">รหัสสินค้า</span>
-                            <span id="p_code" class="fw-bold">9603-031-02</span>
+                            <span id="p_code"  class="fw-bold">-</span>
                         </div>
                         <div class="d-flex justify-content-between mb-3">
                             <span class="text-gray-600">วันที่ผลิต</span>
-                            <span id="p_date" class="fw-bold">1-ก.ค.-2568</span>
+                            <span id="p_date"  class="fw-bold">-</span>
                         </div>
                         <div class="d-flex justify-content-between mb-3">
                             <span class="text-gray-600">รายการ</span>
-                            <span id="p_title" class="fw-bold text-end">แผ่นราวกั้นอันตราย 3.2 มม.</span>
+                            <span id="p_title" class="fw-bold text-end">-</span>
                         </div>
                         <div class="d-flex justify-content-between mb-3">
                             <span class="text-gray-600">จำนวน</span>
-                            <span id="p_qty" class="fw-bold">300</span>
+                            <span id="p_qty"   class="fw-bold">-</span>
                         </div>
                         <div class="d-flex justify-content-between">
                             <span class="text-gray-600">เลขรันของสินค้า</span>
-                            <a href="javascript:void(0)" id="p_run" class="fw-bold text-primary text-hover-underline">
-                                GR3.2-2500001 - GR3.2-250300
-                            </a>
+                            <a href="javascript:void(0)" id="p_run" class="fw-bold text-primary text-hover-underline">-</a>
                         </div>
                     </div>
                 </div>
@@ -122,82 +141,18 @@
     </form>
 </div>
 
-{{-- พรีวิว QR ทางขวา --}}
-<div class="col-xxl-4">
-    <div class="card h-100">
-        <div class="card-body d-flex flex-column align-items-center justify-content-center">
+        {{-- พรีวิว QR ทางขวา --}}
+        <div class="col-xxl-4">
+        <div class="card h-100">
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
             <div id="qrContainer" class="mb-5"></div>
             <div class="text-gray-600">สแกนเพื่อตรวจสอบ</div>
+            </div>
         </div>
-    </div>
-</div>
+        </div>
 
-{{-- ==== Scripts (QR + เปลี่ยนข้อมูลสินค้าเมื่อเลือกล็อต) ==== --}}
-@push('scripts')
-    {{-- ใช้ qrcodejs จาก CDN --}}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
-            integrity="sha512-Mq3P3bW9i8wqM1uKj1h1n9mL9Ue4C3K0q3k3XcQq7kzq4m3yG/9c0Qd1lH2mQb2KQkP7w4z3lQ4yW1U0E7gR0A=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-    <script>
-        // ตัวอย่างข้อมูลสินค้า (mock ตามภาพ)
-        const LOT_DATA = {
-            "250701001": {
-                code: "9603-031-02",
-                date: "1-ก.ค.-2568",
-                title: "แผ่นราวกั้นอันตราย 3.2 มม.",
-                qty: "300",
-                run: "GR3.2-2500001 - GR3.2-250300"
-            },
-            "250701002": {
-                code: "9603-031-02",
-                date: "2-ก.ค.-2568",
-                title: "แผ่นราวกั้นอันตราย 3.2 มม.",
-                qty: "250",
-                run: "GR3.2-2500301 - GR3.2-2500550"
-            },
-            "68080021": {
-                code: "9603-030-04",
-                date: "15-ก.ย.-2565",
-                title: "แผ่นราวกั้นอันตราย 2.5 มม.",
-                qty: "50",
-                run: "GR2.5-68080021 - GR2.5-68080250"
-            }
-        };
 
-        // พรีวิว QR
-        const qrEl = document.getElementById('qrContainer');
-        let qr;
-        function makeQR() {
-            const url = document.getElementById('link_url').value.trim();
-            const active = document.getElementById('is_active').checked;
-            const text = active ? url : 'INACTIVE:' + url;
-            qrEl.innerHTML = '';
-            qr = new QRCode(qrEl, {text, width: 240, height: 240});
-        }
-        makeQR();
-
-        // อัปเดตเมื่อเปลี่ยนค่า
-        document.getElementById('link_url').addEventListener('input', makeQR);
-        document.getElementById('is_active').addEventListener('change', makeQR);
-        document.getElementById('qr_code').addEventListener('input', makeQR);
-
-        // เปลี่ยนข้อมูลสินค้าเมื่อเลือกล็อต
-        function renderProduct(lot) {
-            const d = LOT_DATA[lot];
-            if (!d) return;
-            document.getElementById('p_code').textContent  = d.code;
-            document.getElementById('p_date').textContent  = d.date;
-            document.getElementById('p_title').textContent = d.title;
-            document.getElementById('p_qty').textContent   = d.qty;
-            document.getElementById('p_run').textContent   = d.run;
-        }
-
-        const lotSel = document.getElementById('lot_no');
-        lotSel.addEventListener('change', e => renderProduct(e.target.value));
-        renderProduct(lotSel.value);
-    </script>
-@endpush
 
 
 
@@ -222,37 +177,96 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+        referrerpolicy="no-referrer"></script>
+<script>
+(function () {
+  // ====== QR link & preview ======
+  const QR_BASE = @json(rtrim($qrBase,'/'));
+  const codeEl   = document.getElementById('qr_code');
+  const linkEl   = document.getElementById('link_url');
+  const activeEl = document.getElementById('is_active');
+  const qrBox    = document.getElementById('qrContainer');
 
-<script type="text/javascript">
-    $(document).ready(function(){
-      $("input:checkbox").change(function() {
-        var user_id = $(this).closest('tr').attr('id');
+  function buildLinkFromCode(code){ code = (code||'').trim(); return code ? `${QR_BASE}/${encodeURIComponent(code)}` : ''; }
+  function renderQR(){
+    const url = (linkEl.value||'').trim();
+    qrBox.innerHTML = '';
+    if(!url) return;
+    new QRCode(qrBox, { text: (activeEl.checked ? url : 'INACTIVE:'+url), width: 260, height: 260 });
+  }
+  function onCodeChange(){ linkEl.value = buildLinkFromCode(codeEl.value); renderQR(); }
 
-        $.ajax({
-                type:'POST',
-                url:'{{url('api/api_post_status_contact')}}',
-                headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                data: { "user_id" : user_id },
-                success: function(data){
-                  if(data.data.success){
+  // bind
+  codeEl.addEventListener('input', onCodeChange);
+  activeEl.addEventListener('change', renderQR);
+  linkEl.addEventListener('input', renderQR);
+  onCodeChange();
 
-                    Swal.fire({
-                        text: "ระบบได้ทำการอัพเดทข้อมูลสำเร็จ!",
-                        icon: "success",
-                        buttonsStyling: false,
-                        confirmButtonText: "Ok, got it!",
-                        customClass: {
-                            confirmButton: "btn btn-primary"
-                        }
-                    });
+  // ====== Dependent dropdown: category -> lots ======
+  const $cat = $('#product_type');
+  const $lot = $('#lot_no');
 
+  const $code  = $('#p_code');
+  const $date  = $('#p_date');
+  const $title = $('#p_title');
+  const $qty   = $('#p_qty');
+  const $run   = $('#p_run');
 
+  function resetPreview(){
+    $code.text('-'); $date.text('-'); $title.text('-'); $qty.text('-'); $run.text('-');
+  }
 
-                  }
-                }
-            });
-        });
-    });
-    </script>
+  function resetLots(){
+    // เคลียร์และตั้ง option แรก
+    $lot.empty().append(new Option('-- เลือกล็อต --',''));
+    $lot.val('').trigger('change'); // sync กับ select2
+  }
 
-@stop('scripts')
+  // เมื่อเลือกประเภท -> โหลดล็อตเฉพาะประเภท
+  $(document).on('change', '#product_type', async function(){
+    resetLots();
+    resetPreview();
+
+    const categoryId = $(this).val();
+    if(!categoryId) return;
+
+    const url = @json(route('ajax.lots-by-category','__ID__')).replace('__ID__', categoryId);
+    try{
+      const res = await fetch(url);
+      const data = await res.json();
+
+      data.forEach(row => {
+        $lot.append(new Option(row.lot_no, row.id));
+      });
+      // คงค่าเป็นว่างให้ผู้ใช้เลือกเอง
+      $lot.val('').trigger('change');
+    }catch(e){
+      console.error('load lots error', e);
+    }
+  });
+
+  // เมื่อเลือกล็อต -> เติมข้อมูลสินค้า
+  $(document).on('change', '#lot_no', async function(){
+    resetPreview();
+    const lotId = $(this).val();
+    if(!lotId) return;
+
+    const url = @json(route('ajax.lot-detail','__ID__')).replace('__ID__', lotId);
+    try{
+      const res = await fetch(url);
+      const d   = await res.json();
+      $code.text(d.sku || '-');
+      $date.text(d.mfg_date_th || d.mfg_date || '-');
+      $title.text(d.name || '-');
+      $qty.text(d.qty ?? '-');
+      $run.text(d.run_range || '-');
+    }catch(e){
+      console.error('load lot info error', e);
+    }
+  });
+
+})();
+</script>
+@endsection
+

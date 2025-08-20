@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QRCodeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,24 +32,50 @@ Route::group(['middleware' => ['UserRole:superadmin|admin']], function () {
         ->name('dashboard.index');
 
     // QR Code
-    Route::get('/admin/qrcode', [App\Http\Controllers\QRCodeController::class, 'index'])
-        ->name('qrcode.index');
-    Route::get('/admin/qrcode/create', [App\Http\Controllers\QRCodeController::class, 'create'])
-        ->name('qrcode.create');
-    Route::get('/admin/qrcode/edit/{id}', [App\Http\Controllers\QRCodeController::class, 'edit'])
-        ->name('qrcode.edit');
-    Route::post('/admin/qrcode', [App\Http\Controllers\QRCodeController::class, 'store'])
-        ->name('qrcode.store');
+    Route::get('/admin/qrcode',           [QRCodeController::class, 'index'])->name('qrcode.index');
+    Route::get('/admin/qrcode/create',    [QRCodeController::class, 'create'])->name('qrcode.create');
+    Route::get('/admin/qrcode/edit/{id}', [QRCodeController::class, 'edit'])->name('qrcode.edit');
+    Route::post('/admin/qrcode',          [QRCodeController::class, 'store'])->name('qrcode.store');
+
+    // AJAX: ดึงล็อตตามประเภท
+    Route::get('/admin/api/lots/by-category/{category}',
+        [App\Http\Controllers\QRCodeController::class, 'lotsByCategory']
+    )->name('ajax.lots-by-category');
+
+    // AJAX: รายละเอียดล็อต (ไว้เติมช่องข้อมูลสินค้า)
+    Route::get('/admin/api/lots/{lot}',
+        [App\Http\Controllers\QRCodeController::class, 'lotDetail']
+    )->name('ajax.lot-detail');
+
+    // เพิ่มอันนี้
+    Route::put('/admin/qrcode/{id}',      [QRCodeController::class, 'update'])->name('qrcode.update');
+    // Route::delete('/admin/qrcode/{id}', [QRCodeController::class, 'destroy'])->name('qrcode.destroy');
 
     // ล็อตนัมเบอร์
     Route::get('/admin/lots', [App\Http\Controllers\LotNumberController::class, 'index'])
         ->name('lots.index');
     Route::get('/admin/lots/create', [App\Http\Controllers\LotNumberController::class, 'create'])
         ->name('lots.create');
-         Route::get('/admin/lots/edit/{id}', [App\Http\Controllers\LotNumberController::class, 'edit'])
-        ->name('lots.edit');
+        Route::get('/admin/lots/edit/{lot}', [App\Http\Controllers\LotNumberController::class, 'edit'])
+    ->name('lots.edit');
+Route::put('/admin/lots/{lot}', [App\Http\Controllers\LotNumberController::class, 'update'])
+    ->name('lots.update');
     Route::post('/admin/lots', [App\Http\Controllers\LotNumberController::class, 'store'])
         ->name('lots.store');
+
+        Route::delete('/admin/lots/{id}', [App\Http\Controllers\LotNumberController::class, 'destroy'])
+    ->name('lots.destroy');
+
+       Route::get('products/by-category/{id}', [App\Http\Controllers\LotNumberController::class, 'productsByCategory'])
+         ->name('ajax.products-by-category');
+
+
+         Route::get('/admin/ajax/products-by-category',
+    [App\Http\Controllers\LotNumberController::class, 'productsByCategory2']
+)->name('ajax.products-by-category2');
+
+
+
 
     // ผู้ใช้งานระบบ
     Route::get('/admin/users', [App\Http\Controllers\UserController::class, 'index'])
@@ -57,10 +84,20 @@ Route::group(['middleware' => ['UserRole:superadmin|admin']], function () {
         ->name('users.create');
     Route::post('/admin/users', [App\Http\Controllers\UserController::class, 'store'])
         ->name('users.store');
-    Route::get('/admin/users/{id}/edit/', [App\Http\Controllers\UserController::class, 'edit'])
+    Route::get('admin/users/{user}/edit', [App\Http\Controllers\UserController::class, 'edit'])
         ->name('users.edit');
+        Route::put('users/{user}', [App\Http\Controllers\UserController::class, 'update'])
+        ->name('users.update');
     Route::get('/admin/activity-logs', [App\Http\Controllers\ActivityLogController::class, 'index'])
         ->name('activity-logs.activity');
+
+
+        Route::delete('/admin/users/{user}', [App\Http\Controllers\UserController::class, 'destroy'])
+        ->name('users.destroy');
+
+    // (ถ้าอยากมีกู้คืนด้วย)
+    Route::post('/admin/users/{id}/restore', [App\Http\Controllers\UserController::class, 'restore'])
+        ->name('users.restore');
 
 
         Route::get('admin/profile',          [ProfileController::class, 'edit'])->name('profile.edit');

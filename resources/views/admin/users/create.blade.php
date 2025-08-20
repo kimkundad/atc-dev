@@ -89,15 +89,20 @@
                                         <input type="password" name="password_confirmation" class="form-control">
                                     </div>
 
+                                    {{-- ...ด้านบนเหมือนเดิม... --}}
+
                                     <div class="col-md-12">
                                         <label class="form-label required">กำหนดประเภทผู้ใช้งาน</label>
-                                        <select class="form-select @error('role') is-invalid @enderror" name="role" data-control="select2" data-hide-search="true">
+                                        <select class="form-select @error('role_id') is-invalid @enderror"
+                                                name="role_id" data-control="select2" data-hide-search="true" required>
                                             <option value="">ระบุประเภทผู้ใช้งาน</option>
-                                            @foreach(($roles ?? ['admin','manager','officer']) as $role)
-                                                <option value="{{ $role }}" {{ old('role')===$role ? 'selected':'' }}>{{ $role }}</option>
+                                            @foreach($roles as $role)
+                                                <option value="{{ $role->id }}" {{ old('role_id')==$role->id ? 'selected':'' }}>
+                                                    {{ $role->name }}
+                                                </option>
                                             @endforeach
                                         </select>
-                                        @error('role')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                        @error('role_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                     </div>
                                 </div>
 
