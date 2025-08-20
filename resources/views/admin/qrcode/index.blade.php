@@ -142,9 +142,9 @@
 
                                         $statusText  = $lot ? ($qr->is_active ? 'ใช้งาน' : 'ปิดใช้งาน') : 'ไม่เชื่อม';
                                         $statusBadge = match ($statusText) {
-                                            'ใช้งาน'    => 'badge-light-success',
-                                            'ปิดใช้งาน' => 'badge-light-warning',
-                                            default     => 'badge-light-secondary',
+                                            'ใช้งาน'    => 'badge-success',
+                                            'ปิดใช้งาน' => 'badge-warning',
+                                            default     => 'badge-secondary',
                                         };
 
                                         $createdAt = optional($qr->created_at)->format('d/m/Y H:i');
@@ -197,11 +197,10 @@
                                                 {{-- <li><a class="dropdown-item" href="{{ route('qrcode.download',$qr->id) }}">ดาวน์โหลดไฟล์</a></li> --}}
                                                 <li><hr class="dropdown-divider"></li>
                                                 <li>
-                                                    <form method="POST" action="{{ route('qrcode.destroy',$qr->id) }}"
-                                                        onsubmit="return confirm('ยืนยันลบรายการนี้?')">
-                                                    @csrf @method('DELETE')
-                                                    <button class="dropdown-item text-danger" type="submit">ลบรายการ</button>
-                                                    </form>
+                                                    <button class="dropdown-item text-danger btn-delete"
+                                            data-url="{{ route('qrcode.destroy', $qr->id) }}"
+                                            data-code="{{ $qr->qr_code }}"
+                                            type="button">ลบรายการ</button>
                                                 </li>
                                                 </ul>
                                             </div>
@@ -309,6 +308,42 @@ document.addEventListener('DOMContentLoaded', function () {
         const dateEl = document.getElementById('mfg_date1');
         dateEl?.addEventListener('change', () => form.submit());
     }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('.btn-delete').forEach(btn => {
+  btn.addEventListener('click', function () {
+    const url  = this.dataset.url;
+    const code = this.dataset.code || '';
+    if (!window.Swal) {
+      if (confirm(`ยืนยันลบรหัส ${code} ?`)) {
+        const f = document.createElement('form');
+        f.method = 'POST'; f.action = url;
+        f.innerHTML = `@csrf @method('DELETE')`;
+        document.body.appendChild(f); f.submit();
+      }
+      return;
+    }
+    Swal.fire({
+      title: 'ยืนยันการลบ?',
+      text: `ต้องการลบรหัส ${code} หรือไม่`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'ลบ',
+      cancelButtonText: 'ยกเลิก',
+      customClass: { confirmButton: 'btn btn-danger', cancelButton: 'btn btn-light' },
+      buttonsStyling: false
+    }).then((r)=>{
+      if(r.isConfirmed){
+        const f = document.createElement('form');
+        f.method = 'POST'; f.action = url;
+        f.innerHTML = `@csrf @method('DELETE')`;
+        document.body.appendChild(f); f.submit();
+      }
+    });
+  });
 });
 </script>
 

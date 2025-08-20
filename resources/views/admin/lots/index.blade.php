@@ -166,11 +166,16 @@
                                                         <li><a class="dropdown-item" href="#">รายละเอียด</a></li>
                                                         <li><hr class="dropdown-divider"></li>
                                                         <li>
-                                                            <form method="POST" action="{{ route('lots.destroy', $lot->id) }}"
-                                                                  onsubmit="return confirm('ยืนยันลบรายการนี้?')">
-                                                                @csrf @method('DELETE')
-                                                                <button class="dropdown-item text-danger" type="submit">ลบรายการ</button>
-                                                            </form>
+                                                        <form id="delete-lot-{{ $lot->id }}" method="POST" action="{{ route('lots.destroy', $lot->id) }}">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="button"
+                                                                    class="dropdown-item text-danger btn-delete-lot"
+                                                                    data-id="{{ $lot->id }}"
+                                                                    data-lot="{{ $lot->lot_no }}">
+                                                            ลบรายการ
+                                                            </button>
+                                                        </form>
                                                         </li>
                                                     </ul>
                                                 </div>
@@ -272,4 +277,42 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+
+<script>
+document.querySelectorAll('.btn-delete-lot').forEach(btn => {
+  btn.addEventListener('click', function () {
+    const id  = this.dataset.id;
+    const lot = this.dataset.lot || '';
+    const form = document.getElementById('delete-lot-' + id);
+
+    Swal.fire({
+      title: 'ยืนยันการลบ?',
+      html: lot ? `ต้องการลบ <b>Lot ${lot}</b> หรือไม่` : 'ต้องการลบรายการนี้หรือไม่',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'ลบรายการ',
+      cancelButtonText: 'ยกเลิก',
+      reverseButtons: true,
+      customClass: { confirmButton: 'btn btn-danger', cancelButton: 'btn btn-light' },
+      buttonsStyling: false
+    }).then((r) => {
+      if (r.isConfirmed) form.submit();
+    });
+  });
+});
+</script>
+
+@if(session('success'))
+<script>
+Swal.fire({
+  icon: 'success',
+  title: 'สำเร็จ',
+  text: @json(session('success')),
+  timer: 1800,
+  showConfirmButton: false
+});
+</script>
+@endif
+
+
 @stop

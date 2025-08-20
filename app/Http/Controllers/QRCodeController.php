@@ -230,8 +230,20 @@ public function index(Request $request)
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, $id)
     {
-        //
+        $qr = QRCode::findOrFail($id);
+
+        // ถ้าอยากลบแบบถาวรใช้ ->forceDelete();
+        // แนะนำเปิด soft deletes (ดูข้อ 4) แล้วใช้ ->delete()
+        $qr->delete();
+
+        if ($request->wantsJson()) {
+            return response()->json(['ok' => true]);
+        }
+
+        return redirect()
+            ->route('qrcode.index')
+            ->with('success', "ลบ QR Code: {$qr->qr_code} แล้ว");
     }
 }
