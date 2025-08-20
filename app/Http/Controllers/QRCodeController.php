@@ -127,20 +127,48 @@ public function index(Request $request)
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        //
-    }
+    public function show(\App\Models\QRCode $qrcode)
+{
+    $qrcode->load([
+        'lot.product.category',
+        'lot.creator',       // ถ้ามีผู้บันทึก
+    ]);
+
+    $lot     = $qrcode->lot;
+    $product = optional($lot)->product;
+    $category= optional($product)->category;
+
+    // ถ้ามีไฟล์/ลิงก์เอกสารในตาราง lot_numbers (แก้ชื่อ field ให้ตรง schema ของคุณ)
+    $docs = array_values(array_filter([
+        optional($lot)->galvanize_cert_path ?? null,
+        optional($lot)->steel_cert_path ?? null,
+    ]));
+
+    return view('admin.qrcode.show', compact('qrcode','lot','product','category','docs'));
+}
+
+
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit($id)
     {
-        $qr = QRCode::with(['lot'])->findOrFail($id);
+        $qr = QRCode::with(['lot.product.category'])->findOrFail($id);
+
         $categories = ProductCategory::orderBy('name')->get();
-        $lots = LotNumber::orderByDesc('created_at')->get(['id','lot_no']);
-        return view('admin.qrcode.edit', compact('qr','categories','lots'));
+        $lots       = LotNumber::orderByDesc('created_at')->get(['id','lot_no']); // ถ้าต้องการมีรายการไว้ก่อน
+
+        // base สำหรับแสดงตัวอย่างลิงก์ และใช้ฝั่ง JS
+        $qrBase = rtrim(env('QR_BASE_URL', config('app.url')), '/');
+
+        // ค่าเริ่มต้นของ select
+        $selectedCategoryId = optional(optional($qr->lot)->product)->category_id;
+        $selectedLotId      = $qr->lot_id;
+
+        return view('admin.qrcode.edit', compact(
+            'qr','categories','lots','qrBase','selectedCategoryId','selectedLotId'
+        ));
     }
 
     /**
@@ -151,21 +179,52 @@ public function index(Request $request)
         $qr = QRCode::findOrFail($id);
 
         $validated = $request->validate([
-            'qr_code'  => ['required','string','max:100', Rule::unique('qrcodes','qr_code')->ignore($qr->id)],
-            'link_url' => ['nullable','url','max:255'],
-            'is_active'=> ['nullable','boolean'],
-            'lot_id'   => ['nullable','exists:lot_numbers,id'],
-            'category_id' => ['nullable','exists:product_categories,id'],
+            'qr_code'     => ['required','string','max:100', Rule::unique('qrcodes','qr_code')->ignore($qr->id)],
+            'is_active'   => ['nullable','boolean'],
+            'lot_id'      => ['nullable','exists:lot_numbers,id'],
+            'category_id' => ['nullable','exists:product_categories,id'], // ใช้เฉพาะช่วยกรอง dropdown
         ]);
 
+        // สร้างลิงก์แบบ .../qr/{code} อัตโนมัติ
+        $base    = rtrim(env('QR_BASE_URL', config('app.url')), '/');
+        $code    = trim($validated['qr_code']);
+        $linkUrl = $base.'/qr/'.rawurlencode($code);
+
         $qr->update([
-            'qr_code'   => $validated['qr_code'],
-            'link_url'  => $validated['link_url'] ?? null,
+            'qr_code'   => $code,
+            'link_url'  => $linkUrl,
             'is_active' => $request->boolean('is_active'),
             'lot_id'    => $validated['lot_id'] ?? null,
         ]);
 
         return redirect()->route('qrcode.index')->with('success','บันทึกการแก้ไขเรียบร้อย');
+    }
+
+
+    public function ajaxLotsByCategory(int $categoryId)
+    {
+        $rows = LotNumber::select('id','lot_no')
+            ->whereHas('product', fn($q) => $q->where('category_id',$categoryId))
+            ->latest()->get();
+
+        return response()->json($rows);
+    }
+
+    // /admin/qrcode/ajax/lot-detail/{lot}
+    public function ajaxLotDetail(LotNumber $lot)
+    {
+        $lot->load('product');
+
+        return response()->json([
+            'sku'       => $lot->product->sku ?? null,
+            'name'      => $lot->product->name ?? null,
+            'mfg_date'  => optional($lot->mfg_date)->format('Y-m-d'),
+            'mfg_time'  => $lot->mfg_time,
+            'qty'       => $lot->qty,
+            'run_range' => $lot->run_range,
+            // ถ้าไม่มี helper แปลงไทย ให้ใช้ mfg_date ธรรมดาแทน
+            'mfg_date_th' => null,
+        ]);
     }
 
     /**

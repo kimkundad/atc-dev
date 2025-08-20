@@ -188,13 +188,24 @@
                                             <div class="dropdown">
                                                 <button class="btn btn-sm btn-light btn-active-light-primary dropdown-toggle"
                                                         type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    จัดการ
+                                                จัดการ
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="{{ route('qrcode.edit',$qr->id) }}">แก้ไขรายการ</a></li>
+                                                <li><a class="dropdown-item" href="{{ route('qrcode.edit',$qr->id) }}">แก้ไขรายการ</a></li>
+                                                <li><a class="dropdown-item" href="{{ route('qrcode.show',$qr->id) }}">แสดงข้อมูลสินค้า</a></li>
+                                                {{-- ถ้ายังไม่มี route ดาวน์โหลด ให้คอมเมนต์ไว้ก่อนได้ --}}
+                                                {{-- <li><a class="dropdown-item" href="{{ route('qrcode.download',$qr->id) }}">ดาวน์โหลดไฟล์</a></li> --}}
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <form method="POST" action="{{ route('qrcode.destroy',$qr->id) }}"
+                                                        onsubmit="return confirm('ยืนยันลบรายการนี้?')">
+                                                    @csrf @method('DELETE')
+                                                    <button class="dropdown-item text-danger" type="submit">ลบรายการ</button>
+                                                    </form>
+                                                </li>
                                                 </ul>
                                             </div>
-                                        </td>
+                                            </td>
                                     </tr>
                                 @empty
                                     <tr><td colspan="10" class="text-center text-muted py-10">ไม่พบข้อมูล</td></tr>

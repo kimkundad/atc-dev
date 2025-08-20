@@ -36,10 +36,20 @@ Route::group(['middleware' => ['UserRole:superadmin|admin']], function () {
         ->name('dashboard.index');
 
     // QR Code
-    Route::get('/admin/qrcode',           [QRCodeController::class, 'index'])->name('qrcode.index');
-    Route::get('/admin/qrcode/create',    [QRCodeController::class, 'create'])->name('qrcode.create');
-    Route::get('/admin/qrcode/edit/{id}', [QRCodeController::class, 'edit'])->name('qrcode.edit');
-    Route::post('/admin/qrcode',          [QRCodeController::class, 'store'])->name('qrcode.store');
+    // Route::get('/admin/qrcode',           [QRCodeController::class, 'index'])->name('qrcode.index');
+    // Route::get('/admin/qrcode/create',    [QRCodeController::class, 'create'])->name('qrcode.create');
+    // Route::get('/admin/qrcode/edit/{id}', [QRCodeController::class, 'edit'])->name('qrcode.edit');
+    // Route::post('/admin/qrcode',          [QRCodeController::class, 'store'])->name('qrcode.store');
+    // Route::put ('admin/qrcode/{qr}',      [QrCodeController::class,'update'])->name('qrcode.update');
+    Route::resource('admin/qrcode', App\Http\Controllers\QRCodeController::class);
+
+    // Ajax (อยู่คอนโทรลเลอร์เดียวกัน)
+    Route::get('admin/qrcode/ajax/lots-by-category/{category}',
+        [QrCodeController::class,'ajaxLotsByCategory'])->name('qrcode.ajax.lots-by-category');
+
+    Route::get('admin/qrcode/ajax/lot-detail/{lot}',
+        [QrCodeController::class,'ajaxLotDetail'])->name('qrcode.ajax.lot-detail');
+
 
     // AJAX: ดึงล็อตตามประเภท
     Route::get('/admin/api/lots/by-category/{category}',
