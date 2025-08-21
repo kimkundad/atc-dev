@@ -43,6 +43,8 @@ Route::group(['middleware' => ['UserRole:superadmin|admin']], function () {
     // Route::put ('admin/qrcode/{qr}',      [QrCodeController::class,'update'])->name('qrcode.update');
     Route::resource('admin/qrcode', App\Http\Controllers\QRCodeController::class);
 
+    Route::get('/admin/qrcode/{qr}/download', [QRCodeController::class, 'download'])->name('qrcode.download');
+
     // Ajax (อยู่คอนโทรลเลอร์เดียวกัน)
     Route::get('admin/qrcode/ajax/lots-by-category/{category}',
         [QrCodeController::class,'ajaxLotsByCategory'])->name('qrcode.ajax.lots-by-category');
@@ -102,6 +104,7 @@ Route::put('/admin/lots/{lot}', [App\Http\Controllers\LotNumberController::class
         ->name('users.edit');
         Route::put('users/{user}', [App\Http\Controllers\UserController::class, 'update'])
         ->name('users.update');
+
     Route::get('/admin/activity-logs', [App\Http\Controllers\ActivityLogController::class, 'index'])
         ->name('activity-logs.activity');
 

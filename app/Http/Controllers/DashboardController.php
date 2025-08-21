@@ -7,6 +7,7 @@ use App\Models\ProductCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
+
 class DashboardController extends Controller
 {
     //
@@ -120,4 +121,7 @@ class DashboardController extends Controller
         $sum = 1;
         return view('admin.dashboard.index', compact('sum'));
     }
+
+
+
 }

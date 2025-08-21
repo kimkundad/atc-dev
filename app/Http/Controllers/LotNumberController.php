@@ -8,6 +8,8 @@ use App\Models\ProductCategory;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class LotNumberController extends Controller
 {
@@ -78,64 +80,183 @@ class LotNumberController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+public function store(Request $request)
     {
-        $request->validate([
+        // ผู้ใช้กรอก lot_no เป็น "เลข 1–3 หลัก" (เช่น 1, 7, 12, 001, 050)
+        $validated = $request->validate([
             'category_id' => ['required','exists:product_categories,id'],
             'product_id'  => ['required','exists:products,id'],
-            'lot_no'      => ['required','max:50'],
-            'mfg_date'    => ['nullable','date'],
+
+            'lot_no'      => ['required','regex:/^\d{1,3}$/'], // ระบบจะประกอบเลขจริงให้อัตโนมัติ
+
+            'mfg_date'    => ['required','date'],
             'mfg_time'    => ['nullable','date_format:H:i'],
             'qty'         => ['required','integer','min:0'],
-            'product_no_old' => ['nullable','max:100'],
-            'product_no_new' => ['nullable','max:100'],
-            'received_date'  => ['nullable','date'],
+
+            // Product No. รับเลข 0–9999 แล้วไป pad ให้เอง
+            'product_no_old' => ['nullable','integer','min:0','max:9999'],
+            'product_no_new' => ['nullable','integer','min:0','max:9999'],
+
+            'received_date'  => ['nullable','date'],  // ฟอร์มส่งชื่อ received_date
             'supplier'       => ['nullable','max:150'],
             'stock_no'       => ['nullable','max:100'],
             'remark'         => ['nullable','max:2000'],
+
             'galvanize_cert_file' => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
             'steel_cert_file'     => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
+        ],[
+            'lot_no.regex' => 'กรุณากรอกเลขล็อตเป็นตัวเลข 1-3 หลัก (เช่น 1, 07, 123)',
         ]);
 
-        // กันซ้ำ
-        if (LotNumber::where('product_id',$request->product_id)
-                     ->where('lot_no',$request->lot_no)->exists()) {
-            return back()->withErrors(['lot_no' => 'มีล็อตนัมเบอร์นี้ในสินค้านี้แล้ว'])
-                         ->withInput();
+        // โหลดสินค้า + หมวด
+        /** @var \App\Models\Product $product */
+        $product  = Product::with('category')->findOrFail($validated['product_id']);
+        $category = $product->category ?? ProductCategory::findOrFail($validated['category_id']);
+        $mfgDate  = Carbon::parse($validated['mfg_date']);
+        $seq3     = $validated['lot_no'];
+
+        // ประกอบเลขล็อตตามกติกา
+        $lotNoFinal = $this->buildLotNo($product, $category, $mfgDate, $seq3);
+
+        // กันซ้ำในสินค้าเดียวกัน
+        $exists = LotNumber::where('product_id', $product->id)
+                    ->where('lot_no', $lotNoFinal)
+                    ->exists();
+        if ($exists) {
+            return back()
+                ->withErrors(['lot_no' => 'มีล็อตนัมเบอร์นี้ในสินค้านี้แล้ว'])
+                ->withInput();
         }
 
-        // อัปโหลดไฟล์
+        // อัปโหลดไฟล์แนบ
         $paths = [];
         if ($request->hasFile('galvanize_cert_file')) {
-            $paths['galvanize_cert_path'] =
-                $request->file('galvanize_cert_file')->store('lots', 'public');
+            $paths['galvanize_cert_path'] = $request->file('galvanize_cert_file')->store('lots', 'public');
         }
         if ($request->hasFile('steel_cert_file')) {
-            $paths['steel_cert_path'] =
-                $request->file('steel_cert_file')->store('lots', 'public');
+            $paths['steel_cert_path'] = $request->file('steel_cert_file')->store('lots', 'public');
         }
 
+        // ทำช่วงหมายเลขผลิต (run_range) — ถ้ากรอกทั้ง old/new
+        $runRange = $this->makeRunRange(
+            $lotNoFinal,
+            $request->input('product_no_old'),
+            $request->input('product_no_new')
+        );
+
+        // เก็บ product_no_old/new แบบ zero-pad (สวยงามต่อเนื่องกับ run_range)
+        $productNoOld = $request->filled('product_no_old') ? $this->padNo($request->product_no_old) : null;
+        $productNoNew = $request->filled('product_no_new') ? $this->padNo($request->product_no_new) : null;
+
+        // บันทึก
         LotNumber::create([
-            'category_id' => $request->category_id,
-            'product_id'  => $request->product_id,
-            'lot_no'      => $request->lot_no,
-            'mfg_date'    => $request->mfg_date,
-            'mfg_time'    => $request->mfg_time,
-            'qty'         => $request->qty,
-            'product_no_old' => $request->product_no_old,
-            'product_no_new' => $request->product_no_new,
-            'received_date'  => $request->received_date,
-            'supplier'       => $request->supplier,
-            'stock_no'       => $request->stock_no,
-            'remark'         => $request->remark,
+            'category_id' => (int) $validated['category_id'],
+            'product_id'  => (int) $product->id,
+
+            'lot_no'      => $lotNoFinal,
+
+            'mfg_date'    => $mfgDate->toDateString(),
+            'mfg_time'    => $validated['mfg_time'] ?? null,
+            'qty'         => (int) $validated['qty'],
+
+            'product_no_old' => $productNoOld,
+            'product_no_new' => $productNoNew,
+            'run_range'      => $runRange,                       // ex: "LP4 6807-0010001 - LP4 6807-0010050"
+
+            // ฟอร์มส่งชื่อ received_date -> map ไปคอลัมน์ receive_date
+            'receive_date'   => $request->input('received_date'),
+            'supplier'       => $request->input('supplier'),
+            'stock_no'       => $request->input('stock_no'),
+            'remark'         => $request->input('remark'),
+
             'galvanize_cert_path' => $paths['galvanize_cert_path'] ?? null,
             'steel_cert_path'     => $paths['steel_cert_path'] ?? null,
-            'created_by'    => Auth::id(),
+
+            'created_by' => Auth::id(),
         ]);
 
-        return redirect()->route('lots.index')
-                         ->with('success','สร้างล็อตนัมเบอร์เรียบร้อย');
+        return redirect()->route('lots.index')->with('success','สร้างล็อตนัมเบอร์เรียบร้อย');
     }
+
+
+    private function makeLotNoFromRule(Product $product, Carbon $mfgDate, string $seq): string
+{
+    $prefix = trim($product->lot_format ?? '');
+    $cat    = trim(mb_strtolower(optional($product->category)->name ?? ''));
+
+    $mm = $mfgDate->format('m');
+
+    if ($cat === 'สีเทอร์โมพลาสติก') {
+        // ปี ค.ศ. 2 หลัก + วัน
+        $yy = $mfgDate->format('y');
+        $dd = $mfgDate->format('d');
+        return "{$prefix}-{$yy}{$mm}{$dd}{$seq}";
+    }
+
+    // เสาไฟ / ราวกั้นอันตราย → ปี พ.ศ. 2 หลัก (AD+543)
+    $yyBe = $mfgDate->copy()->addYears(543)->format('y');
+    return "{$prefix} {$yyBe}{$mm}-{$seq}";
+}
+
+
+/** หมวด "สีเทอร์โมพลาสติก" ? (ปรับเงื่อนไขให้ตรงชื่อจริงใน DB ได้) */
+    private function isPaint(ProductCategory $category): bool
+    {
+        return Str::contains(mb_strtolower($category->name), 'สี');
+    }
+
+    /** zero-pad (ขั้นต่ำ 4 หลัก แต่ถ้ากรอกยาวกว่านั้นจะตามความยาวที่มากกว่า) */
+    private function padNo($n, int $min = 4): string
+    {
+        $n = (string) (int) $n;
+        $width = max($min, strlen($n));
+        return str_pad($n, $width, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * ประกอบเลขล็อตจริงตามกติกา
+     * - สี:   {lot_format}-{yy}{mm}{dd}{seq3}  (ปี ค.ศ.)
+     * - อื่น:  {lot_format} {yy}{mm}-{seq3}    (ปี พ.ศ.)
+     */
+    private function buildLotNo(Product $product, ProductCategory $category, Carbon $mfgDate, string $seq3): string
+    {
+        $seq3 = str_pad(preg_replace('/\D/', '', $seq3) ?: '0', 3, '0', STR_PAD_LEFT);
+        $fmt  = trim($product->lot_format ?? '');
+
+        if ($this->isPaint($category)) {
+            // ปี ค.ศ. 2 หลัก
+            $yy = $mfgDate->format('y');
+            $mm = $mfgDate->format('m');
+            $dd = $mfgDate->format('d');
+
+            // ถ้าต้องการย่อ "TH (W 0%)" -> "TH(W)" ให้ใช้ 2 บรรทัดนี้แทน:
+            // $fmt = preg_replace('/\((W|Y)[^)]+\)/', '($1)', $fmt);
+            // $fmt = str_replace('%', '', preg_replace('/\s+/', '', $fmt));
+
+            return "{$fmt}-{$yy}{$mm}{$dd}{$seq3}";
+        }
+
+        // ปี พ.ศ. 2 หลัก + เดือน
+        $yy = (($mfgDate->year + 543) % 100);
+        $mm = $mfgDate->format('m');
+
+        return "{$fmt} {$yy}{$mm}-{$seq3}";
+    }
+
+    /**
+     * สร้างช่วงหมายเลขสินค้า (run_range)
+     * ตัวอย่าง: "LP4 6807-0010001 - LP4 6807-0010050"
+     */
+    private function makeRunRange(string $lotNo, $from, $to): ?string
+    {
+        if ($from === null || $to === null) return null;
+
+        $fromPad = $this->padNo($from); // อย่างน้อย 4 หลัก
+        $toPad   = $this->padNo($to);
+
+        return "{$lotNo}{$fromPad} - {$lotNo}{$toPad}";
+    }
+
 
     /**
      * Display the specified resource.

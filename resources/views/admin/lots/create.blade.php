@@ -139,7 +139,7 @@
                                                     placeholder="ชื่อบริษัท" />
                                             </div>
                                             <div class="col-md-4">
-                                                <label class="form-label">เลข Stock หมด</label>
+                                                <label class="form-label">เลข Stock กรม</label>
                                                 <input type="text" class="form-control" name="stock_no"
                                                     placeholder="รายการสินค้า" />
                                             </div>
@@ -169,7 +169,7 @@
                                 </div>
 
                                 <div class="card-footer d-flex justify-content-start">
-                                    <button type="submit" class="btn btn-primary">สร้างรายการล็อตนัมเบอร์</button>
+                                    <button type="submit" class="btn btn-secondary">สร้างรายการล็อตนัมเบอร์</button>
                                     <a href="{{ url('admin/lots') }}" class="btn btn-light ms-3">ยกเลิก</a>
                                 </div>
                             </form>

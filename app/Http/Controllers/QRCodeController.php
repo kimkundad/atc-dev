@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Endroid\QrCode\Builder\Builder;
+use Illuminate\Support\Str;
+use SimpleSoftwareIO\QrCode\Facades\QrCode as QrCodeFacade;
 
 class QRCodeController extends Controller
 {
@@ -50,6 +54,45 @@ public function index(Request $request)
     ));
 }
 
+
+public function download(\App\Models\QRCode $qr)
+{
+    $qr->load('lot');
+
+    if (empty($qr->link_url)) {
+        abort(422, 'QR code link URL is empty.');
+    }
+
+    $result = Builder::create()
+        ->data($qr->link_url)
+        ->size(300)
+        ->margin(1)
+        ->build();
+
+    $fileName = 'qr_' . Str::uuid() . '.png';
+    $qrPublicPath = public_path('temp/' . $fileName);
+
+    file_put_contents($qrPublicPath, $result->getString());
+
+    $data = [
+        'company' => 'ATC TRAFFIC Co., Ltd.',
+        'mfg_th' => optional($qr->lot)->mfg_date
+            ? \Carbon\Carbon::parse($qr->lot->mfg_date)->locale('th_TH')->isoFormat('DD/MM/YYYY+543')
+            : '-',
+        'lot_no' => optional($qr->lot)->lot_no ?? '-',
+        'class' => 'Class 1',
+        'type' => 'Type 1',
+        'tc_mark' => 'มอก. 248-2567',
+        'qr_path' => $qrPublicPath, // ✅ relative path
+        'logo' => public_path('img/logo.png'), // ✅ relative path เช่นกัน
+    ];
+
+    $pdf = Pdf::loadView('admin.qrcode.pdf-label', $data)
+              ->setPaper([0, 0, 420, 297], 'landscape');
+
+    return $pdf->download('QR-' . $qr->qr_code . '.pdf');
+}
+
     // คืนรายการ “ล็อต” เฉพาะของประเภทที่เลือก
     public function lotsByCategory(ProductCategory $category)
     {
@@ -77,9 +120,7 @@ public function index(Request $request)
             'mfg_date_th'   => $mfgTh,             // ไทย (ถ้าตั้ง locale แล้ว)
             'qty'           => (int) $lot->qty,
             // เลขรันสินค้า ใช้จาก product_no_old/product_no_new ที่คุณบันทึกไว้
-            'run_range'     => ($lot->product_no_old && $lot->product_no_new)
-                                ? "{$lot->product_no_old} - {$lot->product_no_new}"
-                                : null,
+            'run_range'     => ($lot->run_range),
         ];
     }
 

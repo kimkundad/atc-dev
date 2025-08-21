@@ -48,20 +48,20 @@
 
         .product-top{ display: flex; gap: 16px; }
         .product-top .thumb{
-            width: 74px; height: 74px; border-radius: 14px;
+            width: 100px; height: 100px; border-radius: 14px;
             background: #f5f8fa; display: flex; align-items: center; justify-content: center;
             overflow: hidden;
         }
         .product-top .thumb img{ max-width: 100%; max-height: 100%; object-fit: cover; }
         .h1-title{ font-size: 18px; font-weight: 800; line-height: 1.3; color: #101828; }
-        .sku{ color: #ef4444; font-size: 12px; margin-top: 4px; }
+        .sku{ color: #ef4444; font-size: 16px; margin-top: 4px; }
 
         .kv{ margin-top: 18px; line-height: 1.1; }
         .kv .label{ color: #6b7280; }
         .kv .value{ font-weight: 800; font-size: 20px; color: #111827; }
         .kv + .kv{ margin-top: 10px; }
 
-        .section-title{ margin-top: 20px; margin-bottom: 10px; font-weight: 700; color: #111827; }
+        .section-title{ margin-top: 20px; margin-bottom: 10px; font-weight: 400; color: #111827; }
 
         .docs{ display: flex; gap: 14px; }
         .doc-card{
@@ -82,14 +82,14 @@
             margin-top: 8px; color: #2563eb; font-weight: 600;
         }
 
-        .company{ margin-top: 18px; font-size: 12px; color: #4b5563; text-align: center; }
+        .company{ margin-top: 18px; font-size: 14px; color: #4b5563; text-align: center; }
         .company .title{ color:#2563EB; font-weight:400; margin-bottom:4px; }
 
         .cta{
             display:block; margin-top:14px;
             border-radius:999px; padding:12px 16px; text-align:center;
             color:#fff; font-weight:700;
-            background: linear-gradient(90deg,#1d4ed8,#22c55e);
+            background: linear-gradient(90deg,rgba(0, 174, 239, 1), rgba(0, 87, 184, 1));
             text-decoration: none;
         }
 
@@ -109,14 +109,14 @@
         }
 
         @media (min-width:480px){
-            .h1-title{ font-size: 20px; }
+            .h1-title{ font-size: 18px; }
             .public-panel{ border-radius: 24px; }
         }
 
         /* ให้กล่องเป็นตำแหน่งอ้างอิงและมีพื้นที่ด้านล่างพอสำหรับรูป */
 .section-bottom-bg{
   position: relative;
-  padding: 24px 18px 20px; /* เผื่อพื้นที่ให้รูป */
+  padding: 24px 18px 88px; /* เผื่อพื้นที่ให้รูป */
   text-align: center;
   background: #fff;
   border-radius: 16px;
@@ -132,14 +132,20 @@
   transform: translateX(-50%);
   bottom: -42px;                /* เลื่อนลงนิดให้ฟุ้งใต้ขอบ */
   width: min(960px, 110%);      /* กว้างเกินกล่องนิดให้ดูลื่น */
-  height: 240px;                /* ความสูงของพื้นหลัง */
+  height: 340px;                /* ความสูงของพื้นหลัง */
   background: url("{{ asset('img/dots-footer.png') }}")
               no-repeat center bottom / cover;
   z-index: 0;
   pointer-events: none;         /* ไม่ให้บังการคลิกปุ่ม */
   opacity: .75;                 /* ปรับความฟุ้งได้ */
 }
-
+.text-center{
+    text-align: center;
+    width: 100%;
+    justify-content: center;
+    display: flex
+;
+}
 /* เนื้อหาในกล่องให้ลอยอยู่เหนือพื้นหลัง */
 .section-bottom-bg > *{
   position: relative;
@@ -192,7 +198,7 @@
                     <div class="thumb">
                         <img src="{{ $productImg }}" alt="product">
                     </div>
-                    <div class="flex-grow-1">
+                    <div class="flex-grow-1" style="text-align: left;">
                         <div class="h1-title">{{ $product->name }}</div>
                         @if($product->sku)
                             <div class="sku">รหัสสินค้า: {{ $product->sku }}</div>
@@ -237,7 +243,10 @@
                             </a>
                         </div>
                     @empty
+                        <div class="text-center">
                         <div class="text-gray-500">ไม่มีไฟล์เอกสาร</div>
+                        </div>
+
                     @endforelse
                 </div>
 

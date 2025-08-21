@@ -30,7 +30,7 @@
               <span class="ms-1 text-success">ปี {{ $year + 543 }}</span>
             </div>
           </div>
-          <a href="#" class="btn btn-light-primary">Export Data</a>
+          <a href="#" class="btn btn-outline btn-outline-dashed btn-outline-dark btn-active-light-dark">Export Data</a>
         </div>
 
         {{-- FILTER BAR (บนสุด) --}}

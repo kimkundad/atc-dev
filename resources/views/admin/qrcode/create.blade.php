@@ -108,7 +108,7 @@
             <div>
                 <label class="form-label fw-bold">ข้อมูลสินค้า</label>
                 <div class="row g-5">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <div class="d-flex justify-content-between mb-3">
                             <span class="text-gray-600">รหัสสินค้า</span>
                             <span id="p_code"  class="fw-bold">-</span>
@@ -136,7 +136,7 @@
         </div>
 
         <div class="card-footer d-flex justify-content-start">
-            <button type="submit" class="btn btn-primary">สร้างรายการ</button>
+            <button type="submit" class="btn btn-secondary">สร้างรายการ</button>
         </div>
     </form>
 </div>

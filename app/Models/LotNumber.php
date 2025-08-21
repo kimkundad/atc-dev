@@ -10,10 +10,14 @@ class LotNumber extends Model
     use HasFactory;
 
      protected $fillable = [
-        'category_id','product_id','lot_no','mfg_date','mfg_time','qty',
-        'product_no_old','product_no_new','received_date','supplier','stock_no',
-        'remark','galvanize_cert_path','steel_cert_path','created_by',
-    ];
+    'category_id','product_id','lot_no',
+    'mfg_date','mfg_time','qty',
+    'product_no_old','product_no_new','run_range',
+    'received_date', // หรือ receive_date ถ้าเลือก rename
+    'supplier','stock_no','remark',
+    'galvanize_cert_path','steel_cert_path',
+    'created_by',
+];
 
     public function category() { return $this->belongsTo(ProductCategory::class,'category_id'); }
     public function product()  { return $this->belongsTo(Product::class); }

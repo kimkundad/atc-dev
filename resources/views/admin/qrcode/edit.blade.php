@@ -135,7 +135,7 @@
               </div>
 
               <div class="card-footer d-flex justify-content-start">
-                <button type="submit" class="btn btn-primary">บันทึกการแก้ไข</button>
+                <button type="submit" class="btn btn-secondary">บันทึกการแก้ไข</button>
               </div>
             </form>
           </div>
