@@ -77,20 +77,24 @@ public function download(\App\Models\QRCode $qr)
     $data = [
         'company' => 'ATC TRAFFIC Co., Ltd.',
         'mfg_th' => optional($qr->lot)->mfg_date
-            ? \Carbon\Carbon::parse($qr->lot->mfg_date)->locale('th_TH')->isoFormat('DD/MM/YYYY+543')
-            : '-',
+    ? \Carbon\Carbon::parse($qr->lot->mfg_date)->format('d/m/') . ( \Carbon\Carbon::parse($qr->lot->mfg_date)->year + 543 )
+    : '-',
         'lot_no' => optional($qr->lot)->lot_no ?? '-',
         'class' => 'Class 1',
         'type' => 'Type 1',
         'tc_mark' => 'มอก. 248-2567',
         'qr_path' => $qrPublicPath, // ✅ relative path
-        'logo' => public_path('img/logo.png'), // ✅ relative path เช่นกัน
+        'logo' => public_path('img/logo-stick.jpg'), // ✅ relative path เช่นกัน
+        'logo_ban' => public_path('img/logo-ban.jpg'),
     ];
 
-    $pdf = Pdf::loadView('admin.qrcode.pdf-label', $data)
-              ->setPaper([0, 0, 420, 297], 'landscape');
+    $customPaper = [0, 0, 500, 278]; // หน่วยเป็น point (1 point = 1/72 inch)
 
-    return $pdf->download('QR-' . $qr->qr_code . '.pdf');
+    $pdf = Pdf::loadView('admin.qrcode.pdf-label', $data)
+            ->setPaper($customPaper, 'portrait');
+
+   // return $pdf->download('QR-' . $qr->qr_code . '.pdf');
+   return $pdf->stream();
 }
 
     // คืนรายการ “ล็อต” เฉพาะของประเภทที่เลือก
