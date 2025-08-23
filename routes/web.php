@@ -17,8 +17,8 @@ use App\Http\Controllers\PublicQrController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
-})->middleware('auth');
+    return redirect('/admin/dashboard');
+});
 
 Auth::routes();
 
