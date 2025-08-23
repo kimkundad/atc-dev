@@ -146,6 +146,7 @@
                   <div class="col-12">
                     <label class="form-label d-block mb-3">เอกสารอ้างอิงผลิต</label>
 
+
                     @if(count($docs))
                       <div class="d-flex flex-wrap gap-6 align-items-start">
                         @foreach($docs as $i => $url)

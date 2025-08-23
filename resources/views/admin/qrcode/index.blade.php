@@ -118,7 +118,7 @@
                     {{-- Table --}}
                     <div class="card-body pt-0">
                         <div class="table-responsive">
-                            <table class="table align-middle table-row-dashed fs-6 gy-5">
+                            <table class="table align-middle table-row-dashed fs-6 gy-5" style="    min-height: 300px;">
                                 <thead>
                                     <tr class="fw-bold fs-7 text-gray-800">
                                         <th class="min-w-60px">No.</th>

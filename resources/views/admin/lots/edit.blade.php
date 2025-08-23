@@ -154,7 +154,7 @@
                                             <label class="form-label">แนบไฟล์ใบเชอร์ชุบกัลวาไนซ์</label>
                                             @if($lot->galvanize_cert_path)
                                                 <div class="mb-2">
-                                                    <a target="_blank" href="{{ Storage::url($lot->galvanize_cert_path) }}">ไฟล์ปัจจุบัน</a>
+                                                    <a target="_blank" href="{{ Storage::disk('spaces')->url($lot->galvanize_cert_path) }}">ไฟล์ปัจจุบัน</a>
                                                 </div>
                                             @endif
                                             <input type="file" name="galvanize_cert_file" accept=".png,.jpg,.jpeg,.pdf" class="form-control">
@@ -165,12 +165,14 @@
                                             <label class="form-label">แนบไฟล์ใบเซอร์เหล็ก</label>
                                             @if($lot->steel_cert_path)
                                                 <div class="mb-2">
-                                                    <a target="_blank" href="{{ Storage::url($lot->steel_cert_path) }}">ไฟล์ปัจจุบัน</a>
+                                                    <a target="_blank" href="{{ Storage::disk('spaces')->url($lot->steel_cert_path) }}">ไฟล์ปัจจุบัน</a>
                                                 </div>
                                             @endif
                                             <input type="file" name="steel_cert_file" accept=".png,.jpg,.jpeg,.pdf" class="form-control">
                                             <div class="form-text">รองรับ .jpg .png .pdf</div>
                                         </div>
+
+
                                     </div>
                                 </div>
                             </div>

@@ -79,6 +79,9 @@ Route::put('/admin/lots/{lot}', [App\Http\Controllers\LotNumberController::class
     Route::post('/admin/lots', [App\Http\Controllers\LotNumberController::class, 'store'])
         ->name('lots.store');
 
+        Route::get('/admin/lots/{lot}', [App\Http\Controllers\LotNumberController::class, 'show'])
+    ->name('lots.show');
+
         Route::delete('/admin/lots/{id}', [App\Http\Controllers\LotNumberController::class, 'destroy'])
     ->name('lots.destroy');
 

@@ -13,6 +13,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Endroid\QrCode\Builder\Builder;
 use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode as QrCodeFacade;
+use Illuminate\Support\Facades\Storage;
 
 class QRCodeController extends Controller
 {
@@ -174,22 +175,28 @@ public function download(\App\Models\QRCode $qr)
     /**
      * Display the specified resource.
      */
-    public function show(\App\Models\QRCode $qrcode)
+public function show(\App\Models\QRCode $qrcode)
 {
     $qrcode->load([
         'lot.product.category',
-        'lot.creator',       // ถ้ามีผู้บันทึก
+        'lot.creator',
     ]);
 
     $lot     = $qrcode->lot;
     $product = optional($lot)->product;
     $category= optional($product)->category;
 
-    // ถ้ามีไฟล์/ลิงก์เอกสารในตาราง lot_numbers (แก้ชื่อ field ให้ตรง schema ของคุณ)
-    $docs = array_values(array_filter([
-        optional($lot)->galvanize_cert_path ?? null,
-        optional($lot)->steel_cert_path ?? null,
-    ]));
+    // แปลง path เป็น URL บน DigitalOcean Spaces
+    $docs = collect([
+        $lot->galvanize_cert_path ?? null,
+        $lot->steel_cert_path ?? null,
+    ])
+    ->filter()
+    ->map(function ($path) {
+        return Storage::disk('spaces')->url($path);
+    })
+    ->values()
+    ->all();
 
     return view('admin.qrcode.show', compact('qrcode','lot','product','category','docs'));
 }

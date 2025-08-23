@@ -115,7 +115,7 @@
 
 
                         <div class="table-responsive">
-                            <table class="table  table-bordered align-middle table-row-dashed fs-6 gy-3 mb-0">
+                            <table class="table  table-bordered align-middle table-row-dashed fs-6 gy-3 mb-0" style="    min-height: 300px;">
                                 <thead>
                                     <tr class="fw-bold fs-7 text-gray-800">
                                         <th class="min-w-60px">No.</th>
@@ -166,7 +166,7 @@
                                                 @endif
 
                                                 @if(Auth::user()->hasPermission('lot.view'))
-                                                    <li><a class="dropdown-item" href="#">รายละเอียด</a></li>
+                                                    <li><a class="dropdown-item" href="{{ route('lots.show', $lot->id) }}">รายละเอียด</a></li>
                                                 @endif
 
                                                 <li><hr class="dropdown-divider"></li>
