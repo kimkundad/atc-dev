@@ -16,7 +16,7 @@ class PublicQrController extends Controller
         public function show(string $code)
     {
         $qr = QRCode::where('qr_code', $code)
-            ->where('is_active', true)
+            // ->where('is_active', true)
             ->with(['lot.product.category']) // สำคัญ: eager load category
             ->first();
 

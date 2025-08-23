@@ -96,12 +96,12 @@
 
                                         <div class="col-md-6">
                                             <label class="form-label">Product No. เดิม</label>
-                                            <input type="text" class="form-control" name="product_no_old"
+                                            <input type="number" class="form-control" name="product_no_old"
                                                    value="{{ old('product_no_old', $lot->product_no_old) }}" />
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Product No. ล่าสุด</label>
-                                            <input type="text" class="form-control" name="product_no_new"
+                                            <input type="number" class="form-control" name="product_no_new"
                                                    value="{{ old('product_no_new', $lot->product_no_new) }}" />
                                         </div>
 

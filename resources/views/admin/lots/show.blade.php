@@ -64,7 +64,7 @@
                             </div>
                         </div>
                     </div>
-
+                    @if(($lot->category->name ?? '') !== 'สีเทอร์โมพลาสติก')
                     {{-- รายละเอียดการผลิต (เพิ่มเติม) --}}
                     <div class="border rounded p-6 mb-10">
                         <h4 class="fw-bold mb-5">รายละเอียดการผลิต (เพิ่มเติม)</h4>
@@ -85,6 +85,8 @@
                     </div>
 
                     {{-- เอกสารแนบ --}}
+
+
                     {{-- เอกสารแนบ --}}
 <div class="border rounded p-6">
     <h4 class="fw-bold mb-5">เอกสารแนบทั้งหมด</h4>
@@ -145,6 +147,8 @@
     </div>
 </div>
 
+@endif
+
 
                     {{-- ลงชื่อโดย --}}
                     <div class="mt-6 text-end text-muted">
@@ -162,4 +166,28 @@
 </div>
     </div>
 </div>
+@endsection
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const $category = $('#category_id');
+    const $extraDetail = $('#additional_production_detail');
+
+    function toggleExtraSection(categoryId) {
+        if (parseInt(categoryId) === 3) {
+            $extraDetail.hide();  // ซ่อนเมื่อเป็น สีเทอร์โมพลาสติก
+        } else {
+            $extraDetail.show();  // แสดงทุกกรณีอื่น
+        }
+    }
+
+    // เรียกใช้เมื่อเปลี่ยนประเภทสินค้า
+    $category.on('change', function () {
+        toggleExtraSection(this.value);
+    });
+
+    // ตรวจสอบค่าเริ่มต้นเมื่อเปิดหน้า
+    toggleExtraSection($category.val());
+});
+</script>
 @endsection

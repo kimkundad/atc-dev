@@ -211,7 +211,7 @@
 <script>
   // พรีวิว QR
   const box  = document.getElementById('qrPreview');
-  const text = @json($qrcode->is_active ? ($qrcode->link_url ?? '') : ('INACTIVE:' + ($qrcode->link_url ?? '')));
+  const text = @json($qrcode->link_url);
   if (text) new QRCode(box, { text, width: 180, height: 180 });
 </script>
 @endsection
