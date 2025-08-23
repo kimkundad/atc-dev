@@ -80,8 +80,8 @@ public function download(\App\Models\QRCode $qr)
     ? \Carbon\Carbon::parse($qr->lot->mfg_date)->format('d/m/') . ( \Carbon\Carbon::parse($qr->lot->mfg_date)->year + 543 )
     : '-',
         'lot_no' => optional($qr->lot)->lot_no ?? '-',
-        'class' => 'Class 1',
-        'type' => 'Type 1',
+        'class1' => $qr->lot->class1,
+        'type1' => $qr->lot->type1,
         'tc_mark' => 'มอก. 248-2567',
         'qr_path' => $qrPublicPath, // ✅ relative path
         'logo' => public_path('img/logo-stick.jpg'), // ✅ relative path เช่นกัน
@@ -119,7 +119,7 @@ public function download(\App\Models\QRCode $qr)
             'id'            => $lot->id,
             'lot_no'        => $lot->lot_no,
             'class1'        => $lot->class1,
-            'type1'        => $lot->type1,
+            'type1'         => $lot->type1,
             'sku'           => $lot->product?->sku,
             'name'          => $lot->product?->name,
             'mfg_date'      => $lot->mfg_date,     // YYYY-MM-DD
