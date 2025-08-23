@@ -155,31 +155,40 @@
                                             <td>{{ $lot->created_at?->format('d/m/Y H:i') }}</td>
 
                                             <td class="text-end">
-                                                <div class="btn-group">
-                                                    <a href="{{ route('lots.edit', $lot->id) }}" class="btn btn-light btn-sm">จัดการ</a>
-                                                    <button type="button" class="btn btn-light btn-sm dropdown-toggle dropdown-toggle-split"
-                                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <span class="visually-hidden">Toggle Dropdown</span>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li><a class="dropdown-item" href="{{ route('lots.edit', $lot->id) }}">แก้ไขรายการ</a></li>
-                                                        <li><a class="dropdown-item" href="#">รายละเอียด</a></li>
-                                                        <li><hr class="dropdown-divider"></li>
-                                                        <li>
-                                                        <form id="delete-lot-{{ $lot->id }}" method="POST" action="{{ route('lots.destroy', $lot->id) }}">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="button"
-                                                                    class="dropdown-item text-danger btn-delete-lot"
-                                                                    data-id="{{ $lot->id }}"
-                                                                    data-lot="{{ $lot->lot_no }}">
-                                                            ลบรายการ
-                                                            </button>
-                                                        </form>
-                                                        </li>
-                                                    </ul>
-                                                </div>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-light btn-active-light-primary dropdown-toggle"
+                                                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                จัดการ
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                @if(Auth::user()->hasPermission('lot.edit'))
+                                                    <li><a class="dropdown-item" href="{{ route('lots.edit', $lot->id) }}">แก้ไขรายการ</a></li>
+                                                @endif
+
+                                                @if(Auth::user()->hasPermission('lot.view'))
+                                                    <li><a class="dropdown-item" href="#">รายละเอียด</a></li>
+                                                @endif
+
+                                                <li><hr class="dropdown-divider"></li>
+
+                                                @if(Auth::user()->hasPermission('lot.delete'))
+                                                    <li>
+                                                    <form id="delete-lot-{{ $lot->id }}" method="POST" action="{{ route('lots.destroy', $lot->id) }}">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="button"
+                                                                class="dropdown-item text-danger btn-delete-lot"
+                                                                data-id="{{ $lot->id }}"
+                                                                data-lot="{{ $lot->lot_no }}">
+                                                        ลบรายการ
+                                                        </button>
+                                                    </form>
+                                                    </li>
+                                                @endif
+                                                </ul>
+                                            </div>
                                             </td>
+
                                         </tr>
                                     @empty
                                         <tr><td colspan="9" class="text-center text-muted py-10">ไม่พบข้อมูล</td></tr>

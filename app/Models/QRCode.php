@@ -19,6 +19,7 @@ class QRCode extends Model
         'is_active' => 'boolean',
     ];
 
+
     public function lot()     { return $this->belongsTo(LotNumber::class, 'lot_id'); }
     public function creator() { return $this->belongsTo(User::class, 'created_by'); }
 }

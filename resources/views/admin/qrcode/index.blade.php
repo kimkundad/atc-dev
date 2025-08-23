@@ -185,26 +185,34 @@
                                         <td>{{ $lot?->supplier ?: '-' }}</td>
 
                                         {{-- ในคอลัมน์ จัดการ --}}
-<td class="text-end">
-  <div class="dropdown">
-    <button class="btn btn-sm btn-light btn-active-light-primary dropdown-toggle"
-            type="button" data-bs-toggle="dropdown" aria-expanded="false">
-      จัดการ
-    </button>
-    <ul class="dropdown-menu dropdown-menu-end">
-      <li><a class="dropdown-item" href="{{ route('qrcode.edit',$qr->id) }}">แก้ไขรายการ</a></li>
-      <li><a class="dropdown-item" href="{{ route('qrcode.show',$qr->id) }}">แสดงข้อมูลสินค้า</a></li>
-      <li><a class="dropdown-item" href="{{ route('qrcode.download',$qr->id) }}">ดาวน์โหลดไฟล์</a></li>
-      <li><hr class="dropdown-divider"></li>
-      <li>
-        <button class="dropdown-item text-danger btn-delete"
-                data-url="{{ route('qrcode.destroy', $qr->id) }}"
-                data-code="{{ $qr->qr_code }}"
-                type="button">ลบรายการ</button>
-      </li>
-    </ul>
-  </div>
-</td>
+                                        <td class="text-end">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light btn-active-light-primary dropdown-toggle"
+                                                    type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            จัดการ
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                            @if(Auth::user()->hasPermission('qr.edit'))
+                                            <li><a class="dropdown-item" href="{{ route('qrcode.edit',$qr->id) }}">แก้ไขรายการ</a></li>
+                                            @endif
+                                            @if(Auth::user()->hasPermission('qr.view'))
+                                            <li><a class="dropdown-item" href="{{ route('qrcode.show',$qr->id) }}">แสดงข้อมูลสินค้า</a></li>
+                                            @endif
+                                            @if(Auth::user()->hasPermission('qr.download'))
+                                            <li><a class="dropdown-item" href="{{ route('qrcode.download',$qr->id) }}">ดาวน์โหลดไฟล์</a></li>
+                                            @endif
+                                            <li><hr class="dropdown-divider"></li>
+                                            @if(Auth::user()->hasPermission('qr.delete'))
+                                            <li>
+                                                <button class="dropdown-item text-danger btn-delete"
+                                                        data-url="{{ route('qrcode.destroy', $qr->id) }}"
+                                                        data-code="{{ $qr->qr_code }}"
+                                                        type="button">ลบรายการ</button>
+                                            </li>
+                                            @endif
+                                            </ul>
+                                        </div>
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr><td colspan="10" class="text-center text-muted py-10">ไม่พบข้อมูล</td></tr>

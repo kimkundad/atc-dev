@@ -49,7 +49,7 @@
 
 
 
-                @if (Auth::user()->roles[0]->name == 'superadmin' || Auth::user()->roles[0]->name == 'admin')
+                @if (Auth::user()->roles[0]->name == 'SuperAdmin' || Auth::user()->roles[0]->name == 'Supervisor' || Auth::user()->roles[0]->name == 'Admin')
                     {{-- <div class="menu-item">
                     <!--begin:Menu link-->
                     <a class="menu-link" href="{{ url('admin/dashboard') }}">
@@ -202,7 +202,16 @@
     </div>
 </div>
 
-{{-- ผู้ใช้งานระบบ --}}
+
+
+
+                @endif
+
+
+                @if (Auth::user()->roles[0]->name == 'SuperAdmin' )
+
+
+                {{-- ผู้ใช้งานระบบ --}}
 <div data-kt-menu-trigger="click"
      class="menu-item menu-accordion {{ request()->is('admin/users*') || request()->is('admin/activity-logs*') ? 'here show' : '' }}">
     <span class="menu-link">
@@ -237,7 +246,6 @@
         </div>
     </div>
 </div>
-
 
                 @endif
 

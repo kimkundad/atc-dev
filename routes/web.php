@@ -29,7 +29,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
 
-Route::group(['middleware' => ['UserRole:superadmin|admin']], function () {
+Route::group(['middleware' => ['UserRole:SuperAdmin|Supervisor|Admin']], function () {
 
     // Dashboard
     Route::get('/admin/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])

@@ -29,6 +29,26 @@ class User extends Authenticatable
       $this->notify(new ResetPasswordNotification($token));
     }
 
+    public function hasPermission($menu)
+{
+    $role = $this->roles[0]->name ?? null;
+
+    $permissions = [
+        'qr.view'     => ['SuperAdmin', 'Supervisor', 'Admin'],
+        'qr.edit'     => ['SuperAdmin', 'Supervisor'],
+        'qr.delete'   => ['SuperAdmin'],
+        'qr.download' => ['SuperAdmin', 'Supervisor', 'Admin'],
+        'qr.create'   => ['SuperAdmin', 'Supervisor', 'Admin'],
+
+        'lot.view'    => ['SuperAdmin', 'Supervisor', 'Admin'],
+        'lot.edit'    => ['SuperAdmin', 'Supervisor'],
+        'lot.delete'  => ['SuperAdmin'],
+        'lot.create'  => ['SuperAdmin', 'Supervisor', 'Admin']
+    ];
+
+    return in_array($role, $permissions[$menu] ?? []);
+}
+
     public function roles()
     {
       return $this->belongsToMany(Role::class);
