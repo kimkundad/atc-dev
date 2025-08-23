@@ -6,6 +6,7 @@ use App\Models\QRCode;
 use App\Models\setting;     // ถ้าไม่มีให้ตัดทิ้ง/ใส่ข้อมูลบริษัทแบบฮาร์ดโค้ดได้
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class PublicQrController extends Controller
 {
@@ -34,6 +35,8 @@ class PublicQrController extends Controller
         $lot     = $qr->lot;
         $product = $lot->product;
 
+       // dd($lot);
+
       //  dd($product);
 
         // รูปสินค้า: เอาจากหมวดก่อน ถ้าไม่มีก็จาก product ถ้าไม่มีก็ placeholder
@@ -53,7 +56,14 @@ class PublicQrController extends Controller
             'productImg'=> $productImg,
             'mfgTh'     => $mfgTh,
             'company'   => $this->companyInfo(),
-        ]);
+
+            // เพิ่มนี้เพื่อให้ Blade มองเห็น
+            'docs' => collect([
+                ['label' => 'โหลดเอกสาร', 'url' => $lot->galvanize_cert_path ? Storage::disk('spaces')->url($lot->galvanize_cert_path) : null],
+                ['label' => 'โหลดเอกสาร', 'url' => $lot->steel_cert_path ? Storage::disk('spaces')->url($lot->steel_cert_path) : null],
+                ['label' => 'โหลดเอกสาร', 'url' => $lot->official_cert_file ? Storage::disk('spaces')->url($lot->official_cert_file) : null],
+            ])->filter(fn($d) => $d['url']),
+                    ]);
     }
 
 

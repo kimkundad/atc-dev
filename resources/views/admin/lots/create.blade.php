@@ -170,9 +170,15 @@
                                             <div class="form-text">รองรับ .jpg .png .pdf</div>
                                             </div>
                                             <div class="col-md-3">
-                                            <label class="form-label">แนบไฟล์ใบเซอร์เหล็ก</label>
-                                            <input type="file" name="steel_cert_file" class="form-control" accept=".png,.jpg,.jpeg,.pdf">
-                                            <div class="form-text">รองรับ .jpg .png .pdf</div>
+                                                <label class="form-label">แนบไฟล์ใบเซอร์เหล็ก</label>
+                                                <input type="file" name="steel_cert_file" class="form-control" accept=".png,.jpg,.jpeg,.pdf">
+                                                <div class="form-text">รองรับ .jpg .png .pdf</div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <label class="form-label">แนบไฟล์ใบเซอร์กรม</label>
+                                                <input type="file" name="official_cert_file" class="form-control" accept=".png,.jpg,.jpeg,.pdf">
+                                                <div class="form-text">รองรับ .jpg .png .pdf</div>
                                             </div>
 
 

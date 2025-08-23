@@ -73,7 +73,7 @@
             text-align: center;
         }
         .doc-card .preview{
-            height: 120px; background: #fff; border-radius: 8px;
+            height: 120px; background: #f9f4f0; border-radius: 8px;
             overflow: hidden; display: flex; align-items: center; justify-content: center;
         }
         .doc-card img{ max-width: 100%; max-height: 100%; }
@@ -216,39 +216,32 @@
                 </div>
 
                 <div class="section-title">เอกสาร / ใบรับรอง</div>
-                <div class="docs">
-                    @php
-                        $docs = collect([
-                            ['label'=>'โหลดเอกสาร', 'url'=>$lot->doc1_url ?? null, 'thumb'=>$lot->doc1_thumb ?? null],
-                            ['label'=>'โหลดเอกสาร', 'url'=>$lot->doc2_url ?? null, 'thumb'=>$lot->doc2_thumb ?? null],
-                        ])->filter(fn($d)=>$d['url']);
-                    @endphp
 
-                    @forelse($docs as $d)
-                        <div class="doc-card">
-                            <div class="preview">
-                                @if($d['thumb'])
-                                    <img src="{{ $d['thumb'] }}" alt="document">
-                                @else
-                                    <img src="{{ asset('assets/media/illustrations/blank-doc.png') }}" alt="document">
-                                @endif
-                            </div>
-                            <a class="link" target="_blank" href="{{ $d['url'] }}">
-                                <span class="svg-icon svg-icon-3">
-                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                                        <path d="M5 20h14a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6a1 1 0 00-1 1v16a1 1 0 001 1zM13 3.828L18.172 9H14a1 1 0 01-1-1V3.828zM8 13h8v2H8v-2zm0 4h8v2H8v-2z"/>
-                                    </svg>
-                                </span>
-                                {{ $d['label'] }}
-                            </a>
-                        </div>
-                    @empty
-                        <div class="text-center">
-                        <div class="text-gray-500">ไม่มีไฟล์เอกสาร</div>
-                        </div>
 
-                    @endforelse
-                </div>
+<div class="docs">
+  @foreach ($docs as $doc)
+      @php
+          $ext = strtolower(pathinfo(parse_url($doc['url'], PHP_URL_PATH), PATHINFO_EXTENSION));
+          $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif']);
+          $thumb = $isImage ? $doc['url'] : asset('img/file-pdf-icon.png');
+      @endphp
+
+      <div class="doc-card">
+          <div class="preview">
+              <img src="{{ $thumb }}" alt="Document Preview" />
+          </div>
+          <div style="text-align: center;">
+                <a class="link" target="_blank" href="{{ $doc['url'] }}">
+                    <img src="{{ asset('img/download.png') }}" alt="โหลดเอกสาร" style="width: 100%; height: auto;">
+                </a>
+            </div>
+      </div>
+  @endforeach
+</div>
+
+
+
+
 
                 <section class="company ">
                     <div class="title" style="font-size:16px">ข้อมูลผู้ผลิต</div>
@@ -264,21 +257,35 @@
         @else
             {{-- ========= STATE: ไม่พบข้อมูล ========= --}}
             <div class="content">
-                <div class="empty-illustration">
-                    <span class="cross">✖</span>
-                </div>
-                <div class="text-center fw-bold fs-3 mt-4">ไม่พบข้อมูล</div>
+    <div style="text-align: center;">
+        {{-- ไอคอนวงกลม --}}
+        <div style="
+        ">
+            <img src="{{ asset('img/notfile.png') }}" alt="not found" style="width: 180px; height: 180px;">
+            {{-- หากไม่มีไอคอน ให้ใช้ ✖ แทน
+            <span style="font-size: 40px; color: #2563eb;">✖</span>
+            --}}
+        </div>
+    <br>
+        <div style="font-size: 20px; font-weight: 600; color: #1E293B;">ไม่พบข้อมูล</div>
+    </div>
 
-                <section class="company text-center" style="margin-top:18px">
-                    <div class="title">ข้อมูลผู้ผลิต</div>
-                    <div>{{ $company->name }}</div>
-                    <div>{{ $company->address }}</div>
-                    <div>โทร: {{ $company->phone }} | อีเมล: {{ $company->email }}</div>
-                    <a class="cta mt-3" href="tel:{{ preg_replace('/\D/','', $company->phone) ?: $company->phone }}">ติดต่อสอบถาม</a>
-                </section>
-            </div>
+    {{-- ข้อมูลบริษัท --}}
+    <section class="company" style="margin-top: 24px; text-align: center;">
+        <div style="color: #3B82F6; font-weight: 500; font-size: 16px;">ข้อมูลผู้ผลิต</div>
+        <div>{{ $company->name }}</div>
+        <div>สำนักงานใหญ่: {{ $company->address }}</div>
+        <div>โทร: {{ $company->phone }}</div>
+        <div>อีเมล: {{ $company->email }}</div>
 
-            <div class="footer-dots"></div>
+        <a class="cta" href="tel:{{ preg_replace('/\D/','', $company->phone) ?: $company->phone }}"
+
+        >
+            ติดต่อสอบถาม
+        </a>
+    </section>
+</div>
+
         @endif
     </div>
 </div>

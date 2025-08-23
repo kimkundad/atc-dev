@@ -96,7 +96,7 @@
                     $url = Storage::disk('spaces')->url($lot->galvanize_cert_path);
                     $isImage = Str::endsWith(strtolower($lot->galvanize_cert_path), ['jpg', 'jpeg', 'png']);
                 @endphp
-
+                <label class="form-label">ไฟล์ใบเชอร์ชุบกัลวาไนซ์</label>
                 @if($isImage)
                     <img src="{{ $url }}" class="img-fluid rounded mb-2" />
                 @else
@@ -113,7 +113,25 @@
                     $url = Storage::disk('spaces')->url($lot->steel_cert_path);
                     $isImage = Str::endsWith(strtolower($lot->steel_cert_path), ['jpg', 'jpeg', 'png']);
                 @endphp
+<label class="form-label">ไฟล์ใบเซอร์เหล็ก</label>
+                @if($isImage)
+                    <img src="{{ $url }}" class="img-fluid rounded mb-2" />
+                @else
+                    <img src="{{ asset('img/file-pdf-icon.png') }}" class="img-fluid rounded mb-2" alt="PDF Preview" />
+                @endif
 
+                <a href="{{ $url }}" target="_blank" class="btn btn-sm btn-light-primary">โหลดเอกสาร</a>
+            </div>
+        @endif
+
+
+        @if($lot->official_cert_file)
+            <div class="col-md-3 text-center">
+                @php
+                    $url = Storage::disk('spaces')->url($lot->official_cert_file);
+                    $isImage = Str::endsWith(strtolower($lot->official_cert_file), ['jpg', 'jpeg', 'png']);
+                @endphp
+<label class="form-label">ไฟล์ใบเซอร์กรม</label>
                 @if($isImage)
                     <img src="{{ $url }}" class="img-fluid rounded mb-2" />
                 @else

@@ -104,6 +104,7 @@ class LotNumberController extends Controller
 
                 'galvanize_cert_file' => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
                 'steel_cert_file'     => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
+                'official_cert_file'     => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
             ],[
                 'lot_no.regex' => 'กรุณากรอกเลขล็อตเป็นตัวเลข 1-3 หลัก (เช่น 1, 07, 123)',
             ]);
@@ -140,6 +141,13 @@ class LotNumberController extends Controller
             if ($request->hasFile('steel_cert_file')) {
                 $file = $request->file('steel_cert_file');
                 $fileName = 'ATC-Traffic/steel_' . time() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storePubliclyAs('', $fileName, 'spaces');
+                $paths['steel_cert_path'] = $path;
+            }
+
+            if ($request->hasFile('official_cert_file')) {
+                $file = $request->file('official_cert_file');
+                $fileName = 'ATC-Traffic/official_cert_' . time() . '.' . $file->getClientOriginalExtension();
                 $path = $file->storePubliclyAs('', $fileName, 'spaces');
                 $paths['steel_cert_path'] = $path;
             }
@@ -181,6 +189,7 @@ class LotNumberController extends Controller
 
                 'galvanize_cert_path' => $paths['galvanize_cert_path'] ?? null,
                 'steel_cert_path'     => $paths['steel_cert_path'] ?? null,
+                'official_cert_file'     => $paths['official_cert_file'] ?? null,
 
                 'created_by' => Auth::id(),
             ]);
@@ -335,6 +344,7 @@ public function update(Request $request, LotNumber $lot)
         'remark'         => ['nullable','max:2000'],
         'galvanize_cert_file' => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
         'steel_cert_file'     => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
+        'official_cert_file' => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
     ]);
 
     // ตรวจสอบซ้ำ
@@ -373,6 +383,18 @@ public function update(Request $request, LotNumber $lot)
         $request->file('steel_cert_file')->storePubliclyAs('', $filename, 'spaces');
 
         $lot->steel_cert_path = $filename;
+    }
+
+    if ($request->hasFile('official_cert_file')) {
+        if ($lot->official_cert_file) {
+            Storage::disk('spaces')->delete($lot->official_cert_file);
+        }
+
+        $filename = 'ATC-Traffic/official_cert_'.time().'.'.$request->file('official_cert_file')->getClientOriginalExtension();
+
+        $request->file('official_cert_file')->storePubliclyAs('', $filename, 'spaces');
+
+        $lot->official_cert_file = $filename;
     }
 
     // อัปเดตฟิลด์

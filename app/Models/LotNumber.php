@@ -16,7 +16,7 @@ class LotNumber extends Model
     'received_date', // หรือ receive_date ถ้าเลือก rename
     'supplier','stock_no','remark',
     'galvanize_cert_path','steel_cert_path',
-    'created_by','class1','type1',
+    'created_by','class1','type1', 'official_cert_file'
 ];
 
     public function category() { return $this->belongsTo(ProductCategory::class,'category_id'); }

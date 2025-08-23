@@ -172,6 +172,17 @@
                                             <div class="form-text">รองรับ .jpg .png .pdf</div>
                                         </div>
 
+                                        <div class="col-md-3">
+                                            <label class="form-label">แนบไฟล์ใบเซอร์กรม</label>
+                                            @if($lot->official_cert_file)
+                                                <div class="mb-2">
+                                                    <a target="_blank" href="{{ Storage::disk('spaces')->url($lot->official_cert_file) }}">ไฟล์ปัจจุบัน</a>
+                                                </div>
+                                            @endif
+                                            <input type="file" name="official_cert_file" accept=".png,.jpg,.jpeg,.pdf" class="form-control">
+                                            <div class="form-text">รองรับ .jpg .png .pdf</div>
+                                        </div>
+
 
                                     </div>
                                 </div>
