@@ -117,11 +117,24 @@
                                                 <input type="text" class="form-control" name="product_no_new"
                                                     placeholder="รหัสล่าสุด" />
                                             </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Class</label>
+                                                <input type="text" class="form-control" name="class1"
+                                                    placeholder="1" />
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Type</label>
+                                                <input type="text" class="form-control" name="type1"
+                                                    placeholder="1" />
+                                            </div>
+
                                         </div>
                                     </div>
 
                                     {{-- รายละเอียดการผลิต (เพิ่มเติม) --}}
-                                    <div class="border rounded p-6">
+                                    <div id="additional_production_detail" class="border rounded p-6">
                                         <h4 class="fw-bold mb-5">รายละเอียดการผลิต (เพิ่มเติม)</h4>
                                         <div class="row g-5">
                                             <div class="col-md-4">
@@ -275,7 +288,28 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const $cat = $('#category_id');
+    const $extraDetail = $('#additional_production_detail');
 
+    function toggleExtraSection(catId) {
+        if (parseInt(catId) === 3) {
+            $extraDetail.hide(); // ซ่อนเมื่อ id = 3
+        } else {
+            $extraDetail.show(); // แสดงเมื่อ id อื่น
+        }
+    }
+
+    // เมื่อมีการเลือกประเภทสินค้าใหม่
+    $cat.on('change select2:select', function () {
+        toggleExtraSection(this.value);
+    });
+
+    // เรียกครั้งแรกเมื่อโหลดหน้า
+    toggleExtraSection($cat.val());
+});
+</script>
 @endsection
 
 

@@ -169,6 +169,9 @@ public function store(Request $request)
             'stock_no'       => $request->input('stock_no'),
             'remark'         => $request->input('remark'),
 
+            'class1'         => $request->input('class1'),
+            'type1'         => $request->input('type1'),
+
             'galvanize_cert_path' => $paths['galvanize_cert_path'] ?? null,
             'steel_cert_path'     => $paths['steel_cert_path'] ?? null,
 
@@ -365,6 +368,8 @@ public function store(Request $request)
             'supplier'       => $request->supplier,
             'stock_no'       => $request->stock_no,
             'remark'         => $request->remark,
+            'class1'         => $request->class1,
+            'type1'         => $request->type1,
         ]);
         $lot->save();
 

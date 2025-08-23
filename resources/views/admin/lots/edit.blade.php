@@ -67,7 +67,7 @@
 
 
                                 {{-- รายละเอียดการผลิต --}}
-                                <div class="border rounded p-6 mb-10">
+                                <div  class="border rounded p-6">
                                     <h4 class="fw-bold mb-5">รายละเอียดการผลิต</h4>
                                     <div class="row g-5">
                                         <div class="col-md-4">
@@ -104,11 +104,26 @@
                                             <input type="text" class="form-control" name="product_no_new"
                                                    value="{{ old('product_no_new', $lot->product_no_new) }}" />
                                         </div>
+
+
+                                        <div class="col-md-6">
+                                                <label class="form-label">Class</label>
+                                                <input type="text" class="form-control" name="class1" value="{{ old('class1', $lot->class1) }}"
+                                                    placeholder="1" />
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Type</label>
+                                                <input type="text" class="form-control" name="type1" value="{{ old('type1', $lot->type1) }}"
+                                                    placeholder="1" />
+                                            </div>
+
+
                                     </div>
                                 </div>
 
                                 {{-- รายละเอียดการผลิต (เพิ่มเติม) --}}
-                                <div class="border rounded p-6">
+                                <div id="additional_production_detail" class="border rounded p-6">
                                     <h4 class="fw-bold mb-5">รายละเอียดการผลิต (เพิ่มเติม)</h4>
                                     <div class="row g-5">
                                         <div class="col-md-4">
@@ -244,5 +259,26 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const $category = $('#category_id');
+    const $extraDetail = $('#additional_production_detail');
 
+    function toggleExtraSection(categoryId) {
+        if (parseInt(categoryId) === 3) {
+            $extraDetail.hide();  // ซ่อนเมื่อเป็น สีเทอร์โมพลาสติก
+        } else {
+            $extraDetail.show();  // แสดงทุกกรณีอื่น
+        }
+    }
+
+    // เรียกใช้เมื่อเปลี่ยนประเภทสินค้า
+    $category.on('change', function () {
+        toggleExtraSection(this.value);
+    });
+
+    // ตรวจสอบค่าเริ่มต้นเมื่อเปิดหน้า
+    toggleExtraSection($category.val());
+});
+</script>
 @endsection

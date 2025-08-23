@@ -91,7 +91,7 @@ margin-top: -5px
         <div class="text-bold">บริษัท เอ ที ซี ทราฟฟิค จำกัด</div>
         <div class="line">วันที่ผลิต {{ $mfg_th }}</div>
         <div class="title">Lot : {{ $lot_no }}</div>
-        <div class="lineC">Class 1 &nbsp;&nbsp;&nbsp; Type 1</div>
+        <div class="lineC">Class {{ $class1 }} &nbsp;&nbsp;&nbsp; Type {{ $type1 }}</div>
 
         <img src="{{ $logo_ban }}" class="logo_ban">
       </td>

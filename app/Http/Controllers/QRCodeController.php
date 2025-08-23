@@ -93,8 +93,8 @@ public function download(\App\Models\QRCode $qr)
     $pdf = Pdf::loadView('admin.qrcode.pdf-label', $data)
             ->setPaper($customPaper, 'portrait');
 
-   // return $pdf->download('QR-' . $qr->qr_code . '.pdf');
-   return $pdf->stream();
+    return $pdf->download('QR-' . $qr->qr_code . '.pdf');
+//   return $pdf->stream();
 }
 
     // คืนรายการ “ล็อต” เฉพาะของประเภทที่เลือก
@@ -118,6 +118,8 @@ public function download(\App\Models\QRCode $qr)
         return [
             'id'            => $lot->id,
             'lot_no'        => $lot->lot_no,
+            'class1'        => $lot->class1,
+            'type1'        => $lot->type1,
             'sku'           => $lot->product?->sku,
             'name'          => $lot->product?->name,
             'mfg_date'      => $lot->mfg_date,     // YYYY-MM-DD
