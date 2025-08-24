@@ -107,6 +107,25 @@ public function download(\App\Models\QRCode $qr)
         ->get(['id','lot_no','mfg_date','qty','product_id']);
 }
 
+
+public function lotsByCategory2(ProductCategory $category)
+{
+    $currentQrLotId = request('include_id'); // ID ที่ต้องดึงกลับมาด้วย
+
+    $query = LotNumber::where('category_id', $category->id)
+        ->where(function ($q) use ($currentQrLotId) {
+            $q->whereDoesntHave('qrCode'); // ยังไม่มี QR Code
+
+            // หรือ เป็นล็อตที่เลือกอยู่
+            if ($currentQrLotId) {
+                $q->orWhere('id', $currentQrLotId);
+            }
+        })
+        ->orderByDesc('created_at');
+
+    return $query->get(['id','lot_no','mfg_date','qty','product_id']);
+}
+
     // คืนรายละเอียดของล็อตที่เลือก (ไว้เติมแผง “ข้อมูลสินค้า”)
     public function lotDetail(LotNumber $lot)
     {

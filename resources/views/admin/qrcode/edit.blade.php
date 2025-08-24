@@ -208,17 +208,20 @@
     $lot.val('').trigger('change');
   }
 
-  async function loadLots(categoryId, selectedId = null){
-    resetLots(); resetPreview();
-    if(!categoryId) return;
-    const url = @json(route('ajax.lots-by-category','__ID__')).replace('__ID__', categoryId);
-    try{
-      const res = await fetch(url);
-      const data = await res.json();
-      data.forEach(row => $lot.append(new Option(row.lot_no, row.id)));
-      if(selectedId){ $lot.val(String(selectedId)).trigger('change'); }
-    }catch(e){ console.error('load lots error', e); }
-  }
+async function loadLots(categoryId, selectedId = null){
+  resetLots(); resetPreview();
+  if(!categoryId) return;
+
+  const urlBase = @json(route('ajax.lots-by-category2','__ID__')).replace('__ID__', categoryId);
+  const url = selectedId ? `${urlBase}?include_id=${selectedId}` : urlBase;
+
+  try{
+    const res = await fetch(url);
+    const data = await res.json();
+    data.forEach(row => $lot.append(new Option(row.lot_no, row.id)));
+    if(selectedId){ $lot.val(String(selectedId)).trigger('change'); }
+  }catch(e){ console.error('load lots error', e); }
+}
 
   async function loadLotDetail(lotId){
     resetPreview();

@@ -62,6 +62,12 @@ Route::group(['middleware' => ['UserRole:SuperAdmin|Supervisor|Admin']], functio
         [App\Http\Controllers\QRCodeController::class, 'lotsByCategory']
     )->name('ajax.lots-by-category');
 
+
+    // AJAX: ดึงล็อตตามประเภท
+    Route::get('/admin/api/lots/by-category2/{category}',
+        [App\Http\Controllers\QRCodeController::class, 'lotsByCategory2']
+    )->name('ajax.lots-by-category2');
+
     // AJAX: รายละเอียดล็อต (ไว้เติมช่องข้อมูลสินค้า)
     Route::get('/admin/api/lots/{lot}',
         [App\Http\Controllers\QRCodeController::class, 'lotDetail']
