@@ -167,7 +167,7 @@
                     <input type="hidden" name="role_id" value="{{ $roleId }}">
                     <span class="text-muted">แสดง</span>
                     <select class="form-select form-select-sm w-100px" name="per_page" onchange="this.form.submit()">
-                      @foreach([10,12,25,50,100] as $pp)
+                      @foreach([10,12,25] as $pp)
                         <option value="{{ $pp }}" {{ (int)$perPage===$pp ? 'selected' : '' }}>
                           {{ $pp }} รายการ
                         </option>

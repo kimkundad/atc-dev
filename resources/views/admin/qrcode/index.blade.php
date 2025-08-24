@@ -230,7 +230,6 @@
                                 <select name="per_page" class="form-select form-select-sm w-100px" onchange="this.form.submit()">
                                     <option value="12" @selected($pp===12)>12 รายการ</option>
                                     <option value="25" @selected($pp===25)>25 รายการ</option>
-                                    <option value="50" @selected($pp===50)>50 รายการ</option>
                                 </select>
 
                                 {{-- คืนค่าฟิลเตอร์เดิม --}}
