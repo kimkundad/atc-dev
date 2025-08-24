@@ -22,6 +22,39 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap&subset=thai"
         rel="stylesheet">
 	</head>
+
+ <style>
+        /* ตั้งฟอนต์หลักของ Bootstrap/Metronic */
+        :root {
+            --bs-font-sans-serif: 'Prompt', 'Noto Sans Thai', system-ui, -apple-system,
+                'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif;
+        }
+
+        body {
+            font-family: var(--bs-font-sans-serif);
+        }
+
+        /* น้ำหนักที่ใช้บ่อย */
+        .fw-300 {
+            font-weight: 300
+        }
+
+        .fw-400 {
+            font-weight: 400
+        }
+
+        .fw-500 {
+            font-weight: 500
+        }
+
+        .fw-600 {
+            font-weight: 600
+        }
+
+        .fw-700 {
+            font-weight: 700
+        }
+    </style>
 	<!--end::Head-->
 	<!--begin::Body-->
 	<body id="kt_body" class="app-blank app-blank bgi-size-cover bgi-position-center bgi-no-repeat">
@@ -46,15 +79,16 @@
 							<form class="form w-100" method="POST" action="{{ route('login') }}">
                                 {{ csrf_field() }}
 								<!--begin::Heading-->
-								<div class="text-center mb-11">
+								<div class="text-center ">
                                     <a href="{{ url('/') }}">
-                                        <img class="theme-light-show mx-auto mw-100 w-150px w-lg-250px mb-10 mb-lg-10" src="{{ url('img/logo_write_2.jpg') }}" alt="" />
+                                        <img class="theme-light-show mx-auto mw-100 w-150px w-lg-250px mb-10 mb-lg-10" src="{{ url('img/logo.png') }}" alt="" />
                                     </a>
 									<!--begin::Title-->
 									<h1 class="text-dark fw-bolder mb-3">เข้าสู่ระบบ</h1>
 									<!--end::Title-->
 									<!--begin::Subtitle-->
-									<div class="text-gray-500 fw-semibold fs-6">กรุณากรอกอีเมลและรหัสผ่าน</div>
+									{{-- <div class="text-gray-500 fw-semibold fs-6">กรุณากรอกอีเมลและรหัสผ่าน</div> --}}
+                                    <br>
 									<!--end::Subtitle=-->
 								</div>
 
@@ -125,7 +159,7 @@
 								<!--end::Wrapper-->
 								<!--begin::Submit button-->
 								<div class="d-grid mb-10">
-									<button type="submit" class="btn btn-primary">
+									<button type="submit" class="btn btn-success">
 										<!--begin::Indicator label-->
 										<span class="indicator-label">เข้าสู่ระบบ</span>
 										<!--end::Indicator label-->
