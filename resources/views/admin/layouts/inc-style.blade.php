@@ -33,4 +33,12 @@ span, p , li ,strong, option , label, input, a, b {
 <style>
     .app-sidebar .card.bg-light-success { background:#ecfdf5 !important; } /* เขียวอ่อน */
     .symbol-45px .symbol-label { width:45px; height:45px; display:flex; align-items:center; justify-content:center; }
+
+    .app-header {
+        background-color: #f5f8fa;
+        box-shadow: none !important;
+        border-bottom: var(--kt-app-header-base-border-bottom);
+    }
+
+
 </style>
