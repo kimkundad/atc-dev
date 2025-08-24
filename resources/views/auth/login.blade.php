@@ -16,14 +16,20 @@
 		<link href="{{ url('admin/assets/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
 		<link href="{{ url('admin/assets/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
 		<!--end::Global Stylesheets Bundle-->
+            <!-- Google Font: Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap&subset=thai"
+        rel="stylesheet">
 	</head>
 	<!--end::Head-->
 	<!--begin::Body-->
 	<body id="kt_body" class="app-blank app-blank bgi-size-cover bgi-position-center bgi-no-repeat">
 		<!--begin::Root-->
+        <br><br><br><br>
 		<div class="d-flex flex-column flex-root" id="kt_app_root">
 			<!--begin::Page bg image-->
-			<style>body { background-image: url('{{ url('admin/assets/media/auth/bg3.jpg') }}'); } [data-theme="dark"] body { background-image: url('{{ url('admin/assets/media/auth/bg10-dark.jpeg') }}'); }</style>
+			<style>body { background-image: url('{{ url('img/city-blue-sky.png') }}'); } [data-theme="dark"] body { background-image: url('{{ url('aimg/city-blue-sky.png') }}'); }</style>
 			<!--end::Page bg image-->
 			<!--begin::Authentication - Sign-in -->
 			<div class="d-flex justify-content-center flex-column flex-lg-row ">
@@ -113,7 +119,7 @@
 								<div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
 									<div></div>
 									<!--begin::Link-->
-									<a href="{{ route('password.request') }}" class="link-primary">ลืมรหัสผ่าน ?</a>
+									{{-- <a href="{{ route('password.request') }}" class="link-primary">ลืมรหัสผ่าน ?</a> --}}
 									<!--end::Link-->
 								</div>
 								<!--end::Wrapper-->
