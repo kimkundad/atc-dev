@@ -252,13 +252,8 @@
 <div class="app-sidebar-footer flex-column-auto pb-6 px-6" id="kt_app_sidebar_footer">
     <div class="card bg-light-success rounded-3 border-0">
         <a href="{{ route('profile.edit') }}" class="d-flex align-items-center p-4 text-gray-900 text-hover-primary">
-            <div class="symbol symbol-45px me-4">
-                @if ($avatarUrl)
-                    <img src="{{ $avatarUrl }}" alt="avatar" />
-                @else
-                    <span class="symbol-label bg-success text-white fs-2 fw-bold rounded-2">☺</span>
-                @endif
-            </div>
+
+
             <div class="d-flex flex-column">
                 <span class="fw-bold">{{ $fullName }}</span>
                 <span class="fs-8 text-gray-600">ประเภทบัญชีผู้ใช้งาน: {{ $roleName }}</span>
