@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 
 class LotNumberController extends Controller
 {
@@ -77,6 +78,12 @@ class LotNumberController extends Controller
         return view('admin.lots.create', compact('categories','products'));
     }
 
+    public function checkLotNoDuplicate($lot_no)
+{
+    $exists = \App\Models\LotNumber::where('lot_no', $lot_no)->exists();
+    return response()->json(['exists' => $exists]);
+}
+
     /**
      * Store a newly created resource in storage.
      */
@@ -87,7 +94,10 @@ class LotNumberController extends Controller
                 'category_id' => ['required','exists:product_categories,id'],
                 'product_id'  => ['required','exists:products,id'],
 
-                'lot_no'      => ['required','regex:/^\d{1,3}$/'], // ระบบจะประกอบเลขจริงให้อัตโนมัติ
+                'lot_no' => [
+                    'required',
+                    Rule::unique('lot_numbers', 'lot_no'),
+                ],
 
                 'mfg_date'    => ['required','date'],
                 'mfg_time'    => ['nullable','date_format:H:i'],
@@ -114,10 +124,12 @@ class LotNumberController extends Controller
             $product  = Product::with('category')->findOrFail($validated['product_id']);
             $category = $product->category ?? ProductCategory::findOrFail($validated['category_id']);
             $mfgDate  = Carbon::parse($validated['mfg_date']);
-            $seq3     = $validated['lot_no'];
+           // $seq3     = $validated['lot_no'];
 
             // ประกอบเลขล็อตตามกติกา
-            $lotNoFinal = $this->buildLotNo($product, $category, $mfgDate, $seq3);
+         //   $lotNoFinal = $this->buildLotNo($product, $category, $mfgDate, $seq3);
+
+         $lotNoFinal = $validated['lot_no'];
 
             // กันซ้ำในสินค้าเดียวกัน
             $exists = LotNumber::where('product_id', $product->id)
@@ -300,21 +312,23 @@ class LotNumberController extends Controller
     $products = Product::where('category_id', $lot->category_id)
                 ->orderBy('sku')->get();
 
+             //   dd($products);
+
     return view('admin.lots.edit', compact('lot','categories','products'));
 }
 
     public function productsByCategory($categoryId)
     {
         return Product::where('category_id', $categoryId)
-            ->orderBy('sku')
-            ->get(['id','sku','name']);
+    ->orderBy('sku')
+    ->get(['id','sku','name','lot_format']);
     }
 
 
     public function productsByCategory2(Request $request)
 {
     $categoryId = $request->get('category_id');
-    $items = Product::select('id','sku','name')
+    $items = Product::select('id','sku','name', 'lot_format')
         ->when($categoryId, fn($q)=>$q->where('category_id',$categoryId))
         ->orderBy('sku')
         ->get();
@@ -355,6 +369,15 @@ public function update(Request $request, LotNumber $lot)
 
     if ($dup) {
         return back()->withErrors(['lot_no' => 'มีล็อตนัมเบอร์นี้ในสินค้านี้แล้ว'])->withInput();
+    }
+
+    // ✅ เพิ่มส่วนนี้: คำนวณ run_range ใหม่
+    $lotNoFinal = $request->lot_no;
+    $runRange = null;
+    if ($request->filled('product_no_old') && $request->filled('product_no_new')) {
+        $fromPad = $this->padNo($request->product_no_old);
+        $toPad = $this->padNo($request->product_no_new);
+        $runRange = "{$lotNoFinal}{$fromPad} - {$lotNoFinal}{$toPad}";
     }
 
     // อัปโหลดไฟล์ใหม่เข้า DigitalOcean Spaces
@@ -404,6 +427,7 @@ public function update(Request $request, LotNumber $lot)
         'lot_no'          => $request->lot_no,
         'mfg_date'        => $request->mfg_date,
         'mfg_time'        => $request->mfg_time,
+        'run_range'       => $runRange, // ✅ เพิ่มตรงนี้
         'qty'             => $request->qty,
         'product_no_old'  => $request->product_no_old,
         'product_no_new'  => $request->product_no_new,

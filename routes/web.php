@@ -97,7 +97,8 @@ Route::put('/admin/lots/{lot}', [App\Http\Controllers\LotNumberController::class
     [App\Http\Controllers\LotNumberController::class, 'productsByCategory2']
 )->name('ajax.products-by-category2');
 
-
+Route::get('/admin/api/lot-no/check/{lot_no}', [App\Http\Controllers\LotNumberController::class, 'checkLotNoDuplicate'])
+    ->name('ajax.lotno-check');
 
 
     // ผู้ใช้งานระบบ

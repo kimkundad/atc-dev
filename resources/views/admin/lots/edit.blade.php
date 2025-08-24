@@ -54,7 +54,8 @@
                 <option value="">เลือกสินค้า</option>
                 @foreach($products as $p)
                     <option value="{{ $p->id }}"
-                        {{ old('product_id', $lot->product_id) == $p->id ? 'selected' : '' }}>
+                            data-lot-format="{{ $p->lot_format }}"
+                            {{ old('product_id', $lot->product_id) == $p->id ? 'selected' : '' }}>
                         {{ $p->sku }} - {{ $p->name }}
                     </option>
                 @endforeach
@@ -72,20 +73,21 @@
                                     <div class="row g-5">
                                         <div class="col-md-4">
                                             <label class="form-label required">ล็อตนัมเบอร์</label>
-                                            <input type="text" class="form-control" name="lot_no"
-                                                   value="{{ old('lot_no', $lot->lot_no) }}" />
-                                            @error('lot_no')<div class="text-danger small mt-2">{{ $message }}</div>@enderror
+                                            <input type="text" class="form-control" name="lot_no" id="lot_no"
+                                                value="{{ old('lot_no', $lot->lot_no) }}" />
+                                            <small id="lotError" class="text-danger d-none">ล็อตนัมเบอร์นี้มีอยู่แล้ว</small>
                                         </div>
 
+
                                         <div class="col-md-4">
-                                            <label class="form-label">วันที่ผลิต</label>
-                                            <div class="input-group">
-                                                <input type="date" class="form-control" name="mfg_date"
-                                                       value="{{ old('mfg_date', $lot->mfg_date ? \Carbon\Carbon::parse($lot->mfg_date)->format('Y-m-d') : '') }}" />
-                                                <input type="time" class="form-control" name="mfg_time"
-                                                       value="{{ old('mfg_time', $lot->mfg_time ? \Carbon\Carbon::parse($lot->mfg_time)->format('H:i') : '') }}" />
+                                                <label class="form-label">วันที่ผลิต</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" id="mfg_date" name="mfg_date"
+                                                        value="{{ old('mfg_date', $lot->mfg_date ? \Carbon\Carbon::parse($lot->mfg_date)->format('Y-m-d') : '') }}" placeholder="เลือกวันที่"/>
+                                                    <input type="text" class="form-control" id="mfg_time" name="mfg_time"
+                                                        value="{{ old('mfg_time', $lot->mfg_time ? \Carbon\Carbon::parse($lot->mfg_time)->format('H:i') : '') }}" placeholder="เลือกเวลา"/>
+                                                </div>
                                             </div>
-                                        </div>
 
                                         <div class="col-md-4">
                                             <label class="form-label required">จำนวนสินค้า</label>
@@ -95,12 +97,12 @@
                                         </div>
 
                                         <div class="col-md-6">
-                                            <label class="form-label">Product No. เดิม</label>
+                                            <label class="form-label required">Product No. เดิม</label>
                                             <input type="number" class="form-control" name="product_no_old"
                                                    value="{{ old('product_no_old', $lot->product_no_old) }}" />
                                         </div>
                                         <div class="col-md-6">
-                                            <label class="form-label">Product No. ล่าสุด</label>
+                                            <label class="form-label required">Product No. ล่าสุด</label>
                                             <input type="number" class="form-control" name="product_no_new"
                                                    value="{{ old('product_no_new', $lot->product_no_new) }}" />
                                         </div>
@@ -204,10 +206,42 @@
 @endsection
 
 @section('scripts')
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const now = new Date();
+
+  flatpickr('#received_date', {
+    dateFormat: 'Y-m-d',
+    altInput: true,
+    altFormat: 'd/m/Y',
+    defaultDate: now
+  });
+
+  flatpickr('#mfg_date', {
+    dateFormat: 'Y-m-d',
+    altInput: true,
+    altFormat: 'd/m/Y',
+    defaultDate: now
+  });
+
+  flatpickr('#mfg_time', {
+    enableTime: true,
+    noCalendar: true,
+    time_24hr: true,
+    dateFormat: 'H:i',
+    defaultDate: now
+  });
+});
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const $cat  = $('#category_id');
     const $prod = $('#product_id');
+
+    // ✅ Flag เพื่อไม่ให้ updateLotNo() ทำงานตอน load หน้า
+    let isInitialLoad = true;
 
     function loadProducts(catId, selectedId = null) {
         if (!catId) {
@@ -222,56 +256,109 @@ document.addEventListener('DOMContentLoaded', function () {
             let html = '<option value="">เลือกสินค้า</option>';
             rows.forEach(function (p) {
                 const sel = (selectedId && Number(selectedId) === Number(p.id)) ? 'selected' : '';
-                html += `<option value="${p.id}" ${sel}>${p.sku} - ${p.name}</option>`;
+                html += `<option value="${p.id}" data-lot-format="${p.lot_format || ''}" ${sel}>${p.sku} - ${p.name}</option>`;
             });
-            $prod.html(html).prop('disabled', false).trigger('change');
+            $prod.html(html).prop('disabled', false);
+
+            // ดึงค่า lot_format ใหม่หลังโหลด และปิด flag
+            setTimeout(() => {
+                $prod.trigger('change');
+                isInitialLoad = false; // ✅ เปิดให้ JS ดำเนินต่อ
+            }, 100);
         });
     }
 
-    // เปลี่ยนประเภท → โหลดสินค้า
+    // เปลี่ยนประเภท → โหลดสินค้าใหม่
     $cat.on('change', function () { loadProducts(this.value, null); });
 
-    // เปิดหน้าครั้งแรก → ให้แน่ใจว่ารายการสินค้าเป็นของประเภทปัจจุบัน
     const initialCat     = $cat.val();
     const selectedProdId = '{{ old('product_id', $lot->product_id) }}';
     if (initialCat) {
         loadProducts(initialCat, selectedProdId);
+    } else {
+        isInitialLoad = false; // หากไม่โหลด product
     }
 });
 </script>
 
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // วันนี้ (Date object) สำหรับ defaultDate
-  const now = new Date();
+    let currentLotFormat = $('select[name="product_id"] option:selected').attr('data-lot-format') || '';
 
-  // วันรับเข้า: date only, ส่งค่า Y-m-d แต่แสดง d/m/Y
-  flatpickr('#received_date', {
-    dateFormat: 'Y-m-d',   // ค่าที่ submit
-    altInput: true,
-    altFormat: 'd/m/Y',    // รูปแบบที่แสดงให้ผู้ใช้เห็น
-    defaultDate: now
-  });
+    $('#product_id').on('change', function () {
+        if (typeof isInitialLoad !== 'undefined' && isInitialLoad) return;
 
-  // วันที่ผลิต: date only
-  flatpickr('#mfg_date', {
-    dateFormat: 'Y-m-d',
-    altInput: true,
-    altFormat: 'd/m/Y',
-    defaultDate: now
-  });
+        const selected = $(this).find('option:selected');
+        currentLotFormat = selected.attr('data-lot-format') || '';
+        console.log('เมื่อเปลี่ยนสินค้า -->', currentLotFormat);
+        updateLotNo();
+    });
 
-  // เวลา: time only (24 ชม.), ค่าเริ่มต้น = เวลาปัจจุบัน
-  flatpickr('#mfg_time', {
-    enableTime: true,
-    noCalendar: true,
-    time_24hr: true,
-    dateFormat: 'H:i',
-    defaultDate: now
-  });
+    $('#mfg_date').on('change', function () {
+        updateLotNo();
+    });
+
+function updateLotNo() {
+    const dateStr = $('#mfg_date').val();
+    if (!dateStr || !currentLotFormat) return;
+
+    const [year, month] = dateStr.split('-');
+    if (!year || !month) return;
+
+    const suffix = year.slice(-2) + month.padStart(2, '0');
+    const generatedPrefix = `${currentLotFormat}-${suffix}-`;
+
+    const currentValue = $('#lot_no').val();
+
+    let trailing = '';
+    if (currentValue && currentValue.includes('-')) {
+        const parts = currentValue.split('-');
+        if (parts.length >= 3) {
+            trailing = parts.slice(2).join('-'); // เก็บเลขต่อท้าย เช่น "009" หรือ "009-XX"
+        }
+    }
+
+    const finalLot = generatedPrefix + trailing;
+    $('#lot_no').val(finalLot);
+    checkLotDuplication(finalLot);
+}
+
+
+    const $lotInput = $('#lot_no');
+    const $errorMsg = $('#lotError');
+    let debounceTimer;
+
+    async function checkLotDuplication(lotNo) {
+        const url = '{{ route('ajax.lotno-check', 'REPLACE_LOT') }}'.replace('REPLACE_LOT', encodeURIComponent(lotNo));
+        const res = await fetch(url);
+        const json = await res.json();
+        if (json.exists && lotNo !== '{{ $lot->lot_no }}') {
+            $errorMsg.removeClass('d-none');
+            $lotInput.addClass('is-invalid');
+        } else {
+            $errorMsg.addClass('d-none');
+            $lotInput.removeClass('is-invalid');
+        }
+    }
+
+    $lotInput.on('input', function () {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            const lotNo = this.value.trim();
+            if (!lotNo) return;
+            checkLotDuplication(lotNo);
+        }, 500);
+    });
+
+    $('form').on('submit', function (e) {
+        if (!$errorMsg.hasClass('d-none')) {
+            e.preventDefault();
+            alert('ไม่สามารถบันทึกได้: ล็อตนัมเบอร์ซ้ำ');
+        }
+    });
 });
 </script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const $category = $('#category_id');
@@ -279,19 +366,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function toggleExtraSection(categoryId) {
         if (parseInt(categoryId) === 3) {
-            $extraDetail.hide();  // ซ่อนเมื่อเป็น สีเทอร์โมพลาสติก
+            $extraDetail.hide();
         } else {
-            $extraDetail.show();  // แสดงทุกกรณีอื่น
+            $extraDetail.show();
         }
     }
 
-    // เรียกใช้เมื่อเปลี่ยนประเภทสินค้า
     $category.on('change', function () {
         toggleExtraSection(this.value);
     });
 
-    // ตรวจสอบค่าเริ่มต้นเมื่อเปิดหน้า
     toggleExtraSection($category.val());
 });
 </script>
+
 @endsection
+
