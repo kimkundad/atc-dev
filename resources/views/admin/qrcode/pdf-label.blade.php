@@ -72,12 +72,10 @@ margin-top: -5px
   .line {
       margin-top: -5px;
       font-size: 14.9pt;
-      font-weight: bold;
   }
   .lineC{
     margin-top: -10px;
       font-size: 17.6pt;
-      font-weight: bold;
   }
 
 </style>
@@ -91,7 +89,7 @@ margin-top: -5px
         <div class="text-bold">บริษัท เอ ที ซี ทราฟฟิค จำกัด</div>
         <div class="line">วันที่ผลิต {{ $mfg_th }}</div>
         <div class="title">Lot : {{ $lot_no }}</div>
-        <div class="lineC">Class {{ $class1 }} &nbsp;&nbsp;&nbsp; Type {{ $type1 }}</div>
+        <div class="lineC">{{ $class1 }} &nbsp;&nbsp;&nbsp; {{ $type1 }}</div>
 
         <img src="{{ $logo_ban }}" class="logo_ban">
       </td>

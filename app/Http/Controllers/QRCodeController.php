@@ -81,8 +81,8 @@ public function download(\App\Models\QRCode $qr)
     ? \Carbon\Carbon::parse($qr->lot->mfg_date)->format('d/m/') . ( \Carbon\Carbon::parse($qr->lot->mfg_date)->year + 543 )
     : '-',
         'lot_no' => optional($qr->lot)->lot_no ?? '-',
-        'class1' => $qr->lot->class1,
-        'type1' => $qr->lot->type1,
+        'class1' => 'Class'. $qr->lot->class1,
+        'type1' => 'Type'. $qr->lot->type1,
         'tc_mark' => 'มอก. 248-2567',
         'qr_path' => $qrPublicPath, // ✅ relative path
         'logo' => public_path('img/logo-stick.jpg'), // ✅ relative path เช่นกัน
@@ -94,8 +94,8 @@ public function download(\App\Models\QRCode $qr)
     $pdf = Pdf::loadView('admin.qrcode.pdf-label', $data)
             ->setPaper($customPaper, 'portrait');
 
-    return $pdf->download('QR-' . $qr->qr_code . '.pdf');
-//   return $pdf->stream();
+  //  return $pdf->download('QR-' . $qr->qr_code . '.pdf');
+ return $pdf->stream();
 }
 
     // คืนรายการ “ล็อต” เฉพาะของประเภทที่เลือก
