@@ -100,11 +100,12 @@ public function download(\App\Models\QRCode $qr)
 
     // คืนรายการ “ล็อต” เฉพาะของประเภทที่เลือก
     public function lotsByCategory(ProductCategory $category)
-    {
-        return LotNumber::where('category_id', $category->id)
-            ->orderByDesc('created_at')
-            ->get(['id','lot_no','mfg_date','qty','product_id']);
-    }
+{
+    return LotNumber::where('category_id', $category->id)
+        ->whereDoesntHave('qrCode') // <-- สำคัญ
+        ->orderByDesc('created_at')
+        ->get(['id','lot_no','mfg_date','qty','product_id']);
+}
 
     // คืนรายละเอียดของล็อตที่เลือก (ไว้เติมแผง “ข้อมูลสินค้า”)
     public function lotDetail(LotNumber $lot)
@@ -136,12 +137,25 @@ public function download(\App\Models\QRCode $qr)
      */
     public function create()
 {
+
+    $qrCode = $this->generateUniqueQR();
+
     $categories = \App\Models\ProductCategory::orderBy('name')->get();
     $lots = \App\Models\LotNumber::orderByDesc('created_at')->get(['id','lot_no']);
 
     $qrBase = rtrim(config('app.url'), '/');
 
-    return view('admin.qrcode.create', compact('categories','lots','qrBase'));
+    return view('admin.qrcode.create', compact('categories','lots','qrBase', 'qrCode'));
+}
+
+
+private function generateUniqueQR()
+{
+    do {
+        $code = Str::upper(Str::random(5)); // สุ่มรหัส A-Z+0-9 ความยาว 5 ตัว
+    } while (QRCode::where('qr_code', $code)->exists());
+
+    return $code;
 }
 
     /**
@@ -150,7 +164,7 @@ public function download(\App\Models\QRCode $qr)
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'qr_code'  => ['required','string','max:100','unique:qrcodes,qr_code'],
+            'qr_code' => 'required|unique:qrcodes,qr_code',
             'link_url' => ['nullable','url','max:255'],
             'is_active'=> ['nullable','boolean'],
             'lot_id'   => ['nullable','exists:lot_numbers,id'],

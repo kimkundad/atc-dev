@@ -23,4 +23,10 @@ class LotNumber extends Model
     public function product()  { return $this->belongsTo(Product::class); }
     public function creator()  { return $this->belongsTo(User::class,'created_by'); }
     public function qrcodes() { return $this->hasMany(QRCode::class, 'lot_id'); }
+
+    public function qrCode()
+    {
+        return $this->hasOne(QRCode::class, 'lot_id');
+    }
+
 }

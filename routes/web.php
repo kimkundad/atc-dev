@@ -20,12 +20,16 @@ Route::get('/', function () {
     return redirect('/admin/dashboard');
 });
 
+Route::get('/home', function () {
+    return redirect('/admin/dashboard');
+});
+
 Auth::routes();
 
 Route::get('/qr/{code}', [PublicQrController::class, 'show'])
     ->name('public.qr');
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
 
 Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
 

@@ -56,7 +56,8 @@
                 <div class="row g-5">
                     <div class="col-md-6">
                         <label class="form-label required">รหัส QR Code</label>
-                        <input type="text" class="form-control" id="qr_code" name="qr_code" value="{{ old('qr_code','') }}" />
+                        <input type="text" class="form-control" id="qr_code" name="qr_code"
+                            value="{{ old('qr_code', $qrCode ?? '') }}" readonly />
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">ลิงก์ใช้งาน</label>
