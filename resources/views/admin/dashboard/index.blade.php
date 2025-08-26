@@ -84,7 +84,7 @@
             <div class="card h-100">
               <div class="card-header border-0 align-items-start">
                 <div>
-                  <div class="fs-6 fw-bold">ภาพรวมตามสินค้า (Top 10)</div>
+                  <div class="fs-6 fw-bold">ภาพรวมตามสินค้า </div>
                   <div class="text-muted">ปี <span class="text-success fw-bold">{{ $year + 543 }}</span></div>
                 </div>
                 <div class="d-flex align-items-center gap-3">
