@@ -48,7 +48,7 @@ class UserController extends Controller
     public function create()
     {
         // ดึงบทบาททั้งหมดมาแสดงใน select
-        $roles = Role::orderBy('name')->get();   // id, name
+        $roles = Role::orderBy('id', 'asc')->get();   // id, name
         return view('admin.users.create', compact('roles'));
     }
 
@@ -108,7 +108,7 @@ class UserController extends Controller
         $currentRoleId = optional($user->roles()->first())->id;
 
         // รายการ role ทั้งหมด
-        $roles = Role::orderBy('name')->get();
+        $roles = Role::orderBy('id', 'asc')->get();   // id, name
 
         return view('admin.users.edit', compact('user', 'roles', 'currentRoleId'));
     }
