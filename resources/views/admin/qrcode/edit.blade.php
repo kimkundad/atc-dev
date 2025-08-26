@@ -98,6 +98,7 @@
 
                 <div class="separator my-6"></div>
 
+
                 {{-- ข้อมูลสินค้า --}}
                 <div>
                   <label class="form-label fw-bold">ข้อมูลสินค้า</label>

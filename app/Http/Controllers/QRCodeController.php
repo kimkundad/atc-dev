@@ -132,9 +132,11 @@ public function lotsByCategory2(ProductCategory $category)
         $lot->load('product:id,sku,name');
 
         // แปลงวันที่เป็นไทย ถ้าอยากได้แบบ 1-ก.ค.-2568 (ถ้าระบบตั้งค่า locale th แล้ว)
-        $mfgTh = optional($lot->mfg_date)
-            ? Carbon::parse($lot->mfg_date)->locale('th')->isoFormat('D-MMM-YYYY')
-            : null;
+        $mfgTh = $lot->mfg_date
+        ? Carbon::parse($lot->mfg_date)
+            ->locale('th')                 // ตั้ง locale เป็นไทย
+            ->translatedFormat('j F Y')    // j=วันไม่เติม 0, F=ชื่อเดือนเต็ม, Y=ค.ศ.
+        : null;
 
         return [
             'id'            => $lot->id,
