@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class LotNumberController extends Controller
 {
@@ -88,126 +89,134 @@ class LotNumberController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-        {
-            // ผู้ใช้กรอก lot_no เป็น "เลข 1–3 หลัก" (เช่น 1, 7, 12, 001, 050)
-            $validated = $request->validate([
-                'category_id' => ['required','exists:product_categories,id'],
-                'product_id'  => ['required','exists:products,id'],
+{
+    // ผู้ใช้ยังส่งมาได้เหมือนเดิม แต่ lot_no ไม่ใช้ค่าจากผู้ใช้อีกต่อไป (จะคำนวณใหม่)
+    $validated = $request->validate([
+        'category_id' => ['required','exists:product_categories,id'],
+        'product_id'  => ['required','exists:products,id'],
 
-                'lot_no' => [
-                    'required',
-                    Rule::unique('lot_numbers', 'lot_no'),
-                ],
+        // จะไม่ใช้ lot_no ที่ผู้ใช้กรอก แต่คง validation ไว้เป็น required เฉย ๆ ก็ได้ หรือถอดทิ้ง
+        // ถ้าจะให้ฟอร์มส่งมาเป็น read-only/empty ก็ลบ required ได้
+        // 'lot_no' => ['nullable', Rule::unique('lot_numbers', 'lot_no')],
 
-                'mfg_date'    => ['required','date'],
-                'mfg_time'    => ['nullable','date_format:H:i'],
-                'qty'         => ['required','integer','min:0'],
+        'mfg_date'    => ['required','date'],
+        'mfg_time'    => ['nullable','date_format:H:i'],
+        'qty'         => ['required','integer','min:1'],
 
-                // Product No. รับเลข 0–9999 แล้วไป pad ให้เอง
-                'product_no_old' => ['nullable','integer','min:0','max:9999'],
-                'product_no_new' => ['nullable','integer','min:0','max:9999'],
+        'product_no_old' => ['nullable','integer','min:0','max:9999'],
+        'product_no_new' => ['nullable','integer','min:0','max:9999'],
 
-                'received_date'  => ['nullable','date'],  // ฟอร์มส่งชื่อ received_date
-                'supplier'       => ['nullable','max:150'],
-                'stock_no'       => ['nullable','max:100'],
-                'remark'         => ['nullable','max:2000'],
+        'received_date'  => ['nullable','date'],
+        'supplier'       => ['nullable','max:150'],
+        'stock_no'       => ['nullable','max:100'],
+        'remark'         => ['nullable','max:2000'],
 
-                'galvanize_cert_file' => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
-                'steel_cert_file'     => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
-                'official_cert_file'     => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
-            ],[
-                'lot_no.regex' => 'กรุณากรอกเลขล็อตเป็นตัวเลข 1-3 หลัก (เช่น 1, 07, 123)',
-            ]);
+        'galvanize_cert_file' => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
+        'steel_cert_file'     => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
+        'official_cert_file'  => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
+    ]);
 
-            // โหลดสินค้า + หมวด
-            /** @var \App\Models\Product $product */
-            $product  = Product::with('category')->findOrFail($validated['product_id']);
-            $category = $product->category ?? ProductCategory::findOrFail($validated['category_id']);
-            $mfgDate  = Carbon::parse($validated['mfg_date']);
-           // $seq3     = $validated['lot_no'];
+    /** @var \App\Models\Product $product */
+    $product  = Product::with('category')->findOrFail($validated['product_id']);
+    $category = $product->category ?? ProductCategory::findOrFail($validated['category_id']);
+    $mfgDate  = Carbon::parse($validated['mfg_date']);
 
-            // ประกอบเลขล็อตตามกติกา
-         //   $lotNoFinal = $this->buildLotNo($product, $category, $mfgDate, $seq3);
+    // ===== คำนวณเลขล็อตด้วยทรานแซคชัน + lockForUpdate() เพื่อกันชนกัน =====
+    $lotNoFinal = DB::transaction(function () use ($product) {
+        $today  = Carbon::today();                // ใช้วันปัจจุบันตาม requirement
+        $suffix = $today->format('ym');           // YYMM เช่น 2508
+        $format = trim($product->lot_format ?: $product->sku);
+        $prefix = "{$format}-{$suffix}-";         // เช่น "GR 3.2-2508-"
 
-         $lotNoFinal = $validated['lot_no'];
+        // ดึงตัวท้ายสุดภายใต้ prefix เดียวกัน (และสินค้าตัวเดียวกัน) พร้อม lock แถว
+        $last = LotNumber::where('product_id', $product->id)
+                ->where('lot_no', 'like', $prefix.'%')
+                ->lockForUpdate()
+                ->orderBy('lot_no', 'desc')
+                ->first();
 
-            // กันซ้ำในสินค้าเดียวกัน
-            $exists = LotNumber::where('product_id', $product->id)
-                        ->where('lot_no', $lotNoFinal)
-                        ->exists();
-            if ($exists) {
-                return back()
-                    ->withErrors(['lot_no' => 'มีล็อตนัมเบอร์นี้ในสินค้านี้แล้ว'])
-                    ->withInput();
-            }
-
-            // อัปโหลดไฟล์แนบ
-            $paths = [];
-            if ($request->hasFile('galvanize_cert_file')) {
-                $file = $request->file('galvanize_cert_file');
-                $fileName = 'ATC-Traffic/galvanize_' . time() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storePubliclyAs('', $fileName, 'spaces');
-                $paths['galvanize_cert_path'] = $path;
-            }
-
-            if ($request->hasFile('steel_cert_file')) {
-                $file = $request->file('steel_cert_file');
-                $fileName = 'ATC-Traffic/steel_' . time() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storePubliclyAs('', $fileName, 'spaces');
-                $paths['steel_cert_path'] = $path;
-            }
-
-            if ($request->hasFile('official_cert_file')) {
-                $file = $request->file('official_cert_file');
-                $fileName = 'ATC-Traffic/official_cert_' . time() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storePubliclyAs('', $fileName, 'spaces');
-                $paths['steel_cert_path'] = $path;
-            }
-
-            // ทำช่วงหมายเลขผลิต (run_range) — ถ้ากรอกทั้ง old/new
-            $runRange = $this->makeRunRange(
-                $lotNoFinal,
-                $request->input('product_no_old'),
-                $request->input('product_no_new')
-            );
-
-            // เก็บ product_no_old/new แบบ zero-pad (สวยงามต่อเนื่องกับ run_range)
-            $productNoOld = $request->filled('product_no_old') ? $this->padNo($request->product_no_old) : null;
-            $productNoNew = $request->filled('product_no_new') ? $this->padNo($request->product_no_new) : null;
-
-            // บันทึก
-            LotNumber::create([
-                'category_id' => (int) $validated['category_id'],
-                'product_id'  => (int) $product->id,
-
-                'lot_no'      => $lotNoFinal,
-
-                'mfg_date'    => $mfgDate->toDateString(),
-                'mfg_time'    => $validated['mfg_time'] ?? null,
-                'qty'         => (int) $validated['qty'],
-
-                'product_no_old' => $productNoOld,
-                'product_no_new' => $productNoNew,
-                'run_range'      => $runRange,                       // ex: "LP4 6807-0010001 - LP4 6807-0010050"
-
-                // ฟอร์มส่งชื่อ received_date -> map ไปคอลัมน์ receive_date
-                'receive_date'   => $request->input('received_date'),
-                'supplier'       => $request->input('supplier'),
-                'stock_no'       => $request->input('stock_no'),
-                'remark'         => $request->input('remark'),
-
-                'class1'         => $request->input('class1'),
-                'type1'         => $request->input('type1'),
-
-                'galvanize_cert_path' => $paths['galvanize_cert_path'] ?? null,
-                'steel_cert_path'     => $paths['steel_cert_path'] ?? null,
-                'official_cert_file'     => $paths['official_cert_file'] ?? null,
-
-                'created_by' => Auth::id(),
-            ]);
-
-            return redirect()->route('lots.index')->with('success','สร้างล็อตนัมเบอร์เรียบร้อย');
+        $lastSeq = 0;
+        if ($last && preg_match('/(\d{3})$/', $last->lot_no, $m)) {
+            $lastSeq = (int) $m[1];
         }
+        $nextSeq = $lastSeq + 1;
+        $seq3    = str_pad($nextSeq, 3, '0', STR_PAD_LEFT);
+
+        $final   = $prefix.$seq3;
+
+        // กันซ้ำอีกชั้น (ในกรณีสุดวิสัย)
+        if (LotNumber::where('product_id', $product->id)->where('lot_no', $final)->exists()) {
+            // เลขชน ให้เด้งเป็นข้อยกเว้นเพื่อให้ทรานแซคชัน rollback
+            throw new \RuntimeException('เลขล็อตซ้ำ กรุณาลองใหม่');
+        }
+
+        return $final;
+    });
+
+    // ===== อัปโหลดไฟล์แนบ =====
+    $paths = [];
+    if ($request->hasFile('galvanize_cert_file')) {
+        $file = $request->file('galvanize_cert_file');
+        $fileName = 'ATC-Traffic/galvanize_' . time() . '.' . $file->getClientOriginalExtension();
+        $paths['galvanize_cert_path'] = $file->storePubliclyAs('', $fileName, 'spaces');
+    }
+
+    if ($request->hasFile('steel_cert_file')) {
+        $file = $request->file('steel_cert_file');
+        $fileName = 'ATC-Traffic/steel_' . time() . '.' . $file->getClientOriginalExtension();
+        $paths['steel_cert_path'] = $file->storePubliclyAs('', $fileName, 'spaces');
+    }
+
+    if ($request->hasFile('official_cert_file')) {
+        $file = $request->file('official_cert_file');
+        $fileName = 'ATC-Traffic/official_cert_' . time() . '.' . $file->getClientOriginalExtension();
+        // แก้คีย์ให้ถูก: เก็บเป็น official_cert_file (คอลัมน์ที่คุณใช้)
+        $paths['official_cert_file'] = $file->storePubliclyAs('', $fileName, 'spaces');
+    }
+
+    // ทำช่วงหมายเลขผลิต (run_range)
+    $runRange = $this->makeRunRange(
+        $lotNoFinal,
+        $request->input('product_no_old'),
+        $request->input('product_no_new')
+    );
+
+    // เก็บ product_no_old/new แบบ zero-pad
+    $productNoOld = $request->filled('product_no_old') ? $this->padNo($request->product_no_old) : null;
+    $productNoNew = $request->filled('product_no_new') ? $this->padNo($request->product_no_new) : null;
+
+    // ===== บันทึก =====
+    LotNumber::create([
+        'category_id' => (int) $validated['category_id'],
+        'product_id'  => (int) $product->id,
+
+        'lot_no'      => $lotNoFinal,                  // ใช้ที่คำนวณ ไม่ใช่ที่ผู้ใช้กรอก
+
+        'mfg_date'    => $mfgDate->toDateString(),
+        'mfg_time'    => $validated['mfg_time'] ?? null,
+        'qty'         => (int) $validated['qty'],
+
+        'product_no_old' => $productNoOld,
+        'product_no_new' => $productNoNew,
+        'run_range'      => $runRange,
+
+        'receive_date'   => $request->input('received_date'),
+        'supplier'       => $request->input('supplier'),
+        'stock_no'       => $request->input('stock_no'),
+        'remark'         => $request->input('remark'),
+
+        'class1'         => $request->input('class1'),
+        'type1'          => $request->input('type1'),
+
+        'galvanize_cert_path' => $paths['galvanize_cert_path'] ?? null,
+        'steel_cert_path'     => $paths['steel_cert_path'] ?? null,
+        'official_cert_file'  => $paths['official_cert_file'] ?? null, // <-- แก้ให้ตรงคอลัมน์
+
+        'created_by' => Auth::id(),
+    ]);
+
+    return redirect()->route('lots.index')->with('success','สร้างล็อตนัมเบอร์เรียบร้อย');
+}
 
 
     private function makeLotNoFromRule(Product $product, Carbon $mfgDate, string $seq): string
@@ -359,6 +368,7 @@ public function update(Request $request, LotNumber $lot)
         'galvanize_cert_file' => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
         'steel_cert_file'     => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
         'official_cert_file' => ['nullable','file','mimes:jpg,jpeg,png,pdf','max:5120'],
+        'active'   => ['required','boolean'],
     ]);
 
     // ตรวจสอบซ้ำ
@@ -437,6 +447,7 @@ public function update(Request $request, LotNumber $lot)
         'remark'          => $request->remark,
         'class1'          => $request->class1,
         'type1'           => $request->type1,
+        'active'           => $request->active,
     ]);
 
     $lot->save();

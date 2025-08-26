@@ -66,12 +66,13 @@
         <div class="col-md-6">
             <label class="form-label required">สินค้า</label>
             <select class="form-select"
-                    name="product_id"
-                    id="product_id"
-                    data-control="select2"
-                    data-placeholder="เลือกสินค้า"
-                    {{ old('category_id') ? '' : 'disabled' }}
-                    required>
+                name="product_id"
+                id="product_id"
+                data-control="select2"
+                data-placeholder="เลือกสินค้า"
+                data-lot-next-url="{{ route('ajax.lot-next', ['product' => '__ID__']) }}"
+                {{ old('category_id') ? '' : 'disabled' }}
+                required>
                 <option value="">เลือกสินค้า</option>
                 @foreach($products as $p)
                     <option value="{{ $p->id }}" {{ old('product_id')==$p->id?'selected':'' }}>
@@ -83,13 +84,15 @@
     </div>
 </div>
 
+
+
                                     {{-- รายละเอียดการผลิต --}}
                                     <div class="border rounded p-6 mb-10">
                                         <h4 class="fw-bold mb-5">รายละเอียดการผลิต</h4>
                                         <div class="row g-5">
                                             <div class="col-md-4">
                                                 <label class="form-label required">ล็อตนัมเบอร์</label>
-                                                <input type="text" class="form-control" name="lot_no" id="lot_no" placeholder="ระบบจะเติมให้" />
+                                                <input type="text" class="form-control" name="lot_no" id="lot_no" placeholder="ระบบจะเติมให้"  readonly/>
                                                 <small id="lotError" class="text-danger d-none">ล็อตนัมเบอร์นี้มีอยู่แล้ว</small>
                                             </div>
                                             <div class="col-md-4">
@@ -103,19 +106,19 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="form-label required">จำนวนสินค้า</label>
-                                                <input type="number" class="form-control" name="qty" value="{{ old('qty') }}" value="50"
-                                                    min="0" step="1" />
+                                                <input type="number" class="form-control" name="qty" id="qty"
+                                                    value="{{ old('qty') }}" min="1" step="1" />
                                             </div>
 
                                             <div class="col-md-6">
                                                 <label class="form-label required">Product No. เดิม</label>
-                                                <input type="number" class="form-control" name="product_no_old" value="{{ old('product_no_old') }}"
-                                                    placeholder="รหัสตามเดิม" />
+                                                <input type="number" class="form-control" name="product_no_old" id="product_no_old"
+                                                    value="{{ old('product_no_old') }}" placeholder="รหัสตามเดิม" readonly />
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label required">Product No. ล่าสุด</label>
-                                                <input type="number" class="form-control" name="product_no_new" value="{{ old('product_no_new') }}"
-                                                    placeholder="รหัสล่าสุด" />
+                                                <input type="number" class="form-control" name="product_no_new" id="product_no_new"
+                                                    value="{{ old('product_no_new') }}" placeholder="รหัสล่าสุด" readonly />
                                             </div>
 
 
@@ -322,32 +325,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 document.addEventListener('DOMContentLoaded', function () {
-    let currentLotFormat = ''; // ใช้เก็บค่า lot_format
+    let currentLotFormat = ''; // เก็บ lot_format จากสินค้า
 
     // เมื่อเลือกสินค้าใหม่: เก็บ lot_format
     $('#product_id').on('change', function () {
         const selectedId = $(this).val();
         const found = $(this).find(`option[value="${selectedId}"]`);
         currentLotFormat = found.data('lot-format') || '';
-        updateLotNo(); // ถ้ามีวันที่แล้ว ให้เติมทันที
-    });
-
-    // เมื่อเลือกวันที่ผลิต
-    $('#mfg_date').on('change', function () {
         updateLotNo();
     });
 
     function updateLotNo() {
-        const dateStr = $('#mfg_date').val(); // ค่าที่ได้จะเป็น yyyy-mm-dd
-        if (!dateStr || !currentLotFormat) return;
+        if (!currentLotFormat) return;
 
-        const [year, month] = dateStr.split('-');
-        if (!year || !month) return;
+        const now = new Date();    // วันปัจจุบัน
+        const year = String(now.getFullYear()).slice(-2); // ปี ค.ศ. 2 หลัก
+        const month = String(now.getMonth() + 1).padStart(2, '0'); // เดือน 2 หลัก
 
-        const lotSuffix = year.slice(-2) + month.padStart(2, '0'); // เช่น "25" + "07" = "2507"
+        const lotSuffix = year + month; // เช่น 25 + 08 = 2508
         const newLotNo = `${currentLotFormat}-${lotSuffix}-`;
         $('input[name="lot_no"]').val(newLotNo);
     }
+
+    // เรียกครั้งแรกเลยตอนโหลดหน้า
+    updateLotNo();
 });
 
 
@@ -413,6 +414,60 @@ document.addEventListener('DOMContentLoaded', function () {
     toggleExtraSection($cat.val());
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const $qty  = $('#qty');
+  const $old  = $('#product_no_old');
+  const $neww = $('#product_no_new');
+
+  function syncProductNo() {
+    const n = parseInt($qty.val(), 10);
+    if (Number.isFinite(n) && n > 0) {
+      $old.val(1);      // เดิม = 1 เสมอ
+      $neww.val(n);     // ล่าสุด = จำนวนที่กรอก
+    } else {
+      $old.val('');
+      $neww.val('');
+    }
+  }
+
+  // อัปเดตทันทีเมื่อพิมพ์/เปลี่ยนค่า และเรียกครั้งแรกตอนโหลดหน้า
+  $qty.on('input change', syncProductNo);
+  syncProductNo();
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const $prd    = $('#product_id');
+  const $lot    = $('#lot_no');
+  const nextTpl = $prd.data('lot-next-url');       // /ajax/lot-next/__ID__
+
+  async function fillLotFromApi(productId) {
+    if (!productId) { $lot.val(''); return; }
+    const url = nextTpl.replace('__ID__', encodeURIComponent(productId));
+    try {
+      const res = await fetch(url, { headers:{'X-Requested-With':'XMLHttpRequest'} });
+      const d   = await res.json();
+      $lot.val(d.lot_no);                           // GR 3.2-2508-001
+      // ถ้ามีตัวตรวจซ้ำอยู่แล้ว ให้เรียกตรวจอีกรอบ
+      $('#lot_no').trigger('input');
+    } catch (e) {
+      console.error('lot-next error', e);
+    }
+  }
+
+  // เมื่อเลือกสินค้า → เติมล็อตนัมเบอร์อัตโนมัติ
+  $prd.on('change select2:select', function () {
+    fillLotFromApi(this.value);
+  });
+
+  // ถ้ามีค่าเก่าจาก validation ให้เติมทันทีเมื่อโหลดหน้า
+  @if(old('product_id'))
+    fillLotFromApi("{{ old('product_id') }}");
+  @endif
+});
+</script>
+
 @endsection
 
 

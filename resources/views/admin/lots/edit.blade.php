@@ -66,6 +66,20 @@
     </div>
 </div>
 
+<div class="border rounded p-6 mb-10">
+        <h4 class="fw-bold mb-3">สถานะ ล็อตนัมเบอร์</h4>
+        {{-- pattern มาตรฐาน: hidden 0 + checkbox 1 --}}
+        <div class="form-check form-switch form-check-custom form-check-solid mt-3">
+            <input type="hidden" name="active" value="0">
+            <input class="form-check-input" type="checkbox" id="active" name="active" value="1"
+                   {{ old('active', $lot->active) ? 'checked' : '' }}>
+            <label class="form-check-label" for="active">
+                เปิดใช้งาน (ปิด = ยกเลิกการใช้งาน)
+            </label>
+        </div>
+        <div class="form-text">เอาเครื่องหมายถูกออกเพื่อ “ยกเลิกการใช้งาน” ล็อตนัมเบอร์ นี้</div>
+    </div>
+
 
                                 {{-- รายละเอียดการผลิต --}}
                                 <div  class="border rounded p-6">
@@ -74,7 +88,7 @@
                                         <div class="col-md-4">
                                             <label class="form-label required">ล็อตนัมเบอร์</label>
                                             <input type="text" class="form-control" name="lot_no" id="lot_no"
-                                                value="{{ old('lot_no', $lot->lot_no) }}" />
+                                                value="{{ old('lot_no', $lot->lot_no) }}" readonly/>
                                             <small id="lotError" class="text-danger d-none">ล็อตนัมเบอร์นี้มีอยู่แล้ว</small>
                                         </div>
 
@@ -91,20 +105,20 @@
 
                                         <div class="col-md-4">
                                             <label class="form-label required">จำนวนสินค้า</label>
-                                            <input type="number" class="form-control" name="qty" min="0" step="1"
+                                            <input type="number" class="form-control" name="qty" min="1" step="1" id="qty"
                                                    value="{{ old('qty', $lot->qty) }}" />
                                             @error('qty')<div class="text-danger small mt-2">{{ $message }}</div>@enderror
                                         </div>
 
                                         <div class="col-md-6">
                                             <label class="form-label required">Product No. เดิม</label>
-                                            <input type="number" class="form-control" name="product_no_old"
-                                                   value="{{ old('product_no_old', $lot->product_no_old) }}" />
+                                            <input type="number" class="form-control" name="product_no_old" id="product_no_old"
+                                                   value="{{ old('product_no_old', $lot->product_no_old) }}" readonly/>
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label required">Product No. ล่าสุด</label>
-                                            <input type="number" class="form-control" name="product_no_new"
-                                                   value="{{ old('product_no_new', $lot->product_no_new) }}" />
+                                            <input type="number" class="form-control" name="product_no_new" id="product_no_new"
+                                                   value="{{ old('product_no_new', $lot->product_no_new) }}" readonly/>
                                         </div>
 
 
@@ -118,11 +132,18 @@
                                 <div id="additional_production_detail" class="border rounded p-6">
                                     <h4 class="fw-bold mb-5">รายละเอียดการผลิต (เพิ่มเติม)</h4>
                                     <div class="row g-5">
+
+
+
                                         <div class="col-md-4">
-                                            <label class="form-label">วันรับเข้า</label>
-                                            <input type="date" class="form-control" name="received_date"
-                                                   value="{{ old('received_date', $lot->received_date ? \Carbon\Carbon::parse($lot->received_date)->format('Y-m-d') : '') }}">
-                                        </div>
+                                                <label class="form-label">วันรับเข้า</label>
+                                                <input type="text"
+                                                    class="form-control"
+                                                    id="received_date"
+                                                    name="received_date"
+                                                    value="{{ old('received_date', $lot->received_date ? \Carbon\Carbon::parse($lot->received_date)->format('Y-m-d') : '') }}"
+                                                    placeholder="เลือกวันรับเข้า">
+                                            </div>
 
                                         <div class="col-md-4">
                                             <label class="form-label">Supplier</label>
@@ -296,9 +317,9 @@ document.addEventListener('DOMContentLoaded', function () {
         updateLotNo();
     });
 
-    $('#mfg_date').on('change', function () {
+    {{-- $('#mfg_date').on('change', function () {
         updateLotNo();
-    });
+    }); --}}
 
 function updateLotNo() {
     const dateStr = $('#mfg_date').val();
@@ -381,6 +402,27 @@ document.addEventListener('DOMContentLoaded', function () {
     toggleExtraSection($category.val());
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const $qty  = $('#qty');
+  const $old  = $('#product_no_old');
+  const $neww = $('#product_no_new');
 
+  function syncProductNo() {
+    const n = parseInt($qty.val(), 10);
+    if (Number.isFinite(n) && n > 0) {
+      $old.val(1);      // เดิม = 1 เสมอ
+      $neww.val(n);     // ล่าสุด = จำนวนที่กรอก
+    } else {
+      $old.val('');
+      $neww.val('');
+    }
+  }
+
+  // อัปเดตทันทีเมื่อพิมพ์/เปลี่ยนค่า และเรียกครั้งแรกตอนโหลดหน้า
+  $qty.on('input change', syncProductNo);
+  syncProductNo();
+});
+</script>
 @endsection
 

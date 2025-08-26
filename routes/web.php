@@ -135,4 +135,8 @@ Route::get('/admin/api/lot-no/check/{lot_no}', [App\Http\Controllers\LotNumberCo
     Route::put('admin/profile/general',  [ProfileController::class, 'updateGeneral'])->name('profile.update.general');
     Route::put('admin/profile/account',  [ProfileController::class, 'updateAccount'])->name('profile.update.account');
 
+
+    Route::get('/ajax/lot-next/{product}', [App\Http\Controllers\AjaxLotController::class, 'next'])
+    ->name('ajax.lot-next');
+
 });
