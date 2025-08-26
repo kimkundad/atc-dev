@@ -177,7 +177,7 @@
     const url = (linkEl.value||'').trim();
     qrBox.innerHTML = '';
     if(!url) return;
-    new QRCode(qrBox, { text: (activeEl.checked ? url : 'INACTIVE:'+url), width: 260, height: 260 });
+    new QRCode(qrBox, { text: (url), width: 260, height: 260 });
   }
   function onCodeChange(){ linkEl.value = buildLinkFromCode(codeEl.value); renderQR(); }
 
