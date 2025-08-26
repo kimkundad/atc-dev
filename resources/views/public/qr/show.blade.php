@@ -391,9 +391,9 @@
                         <div>{{ $company->name }}</div>
                         <div>สำนักงานใหญ่: 89/1 หมู่ 9 ตำบลศิลาลอย <br> อำเภอสามร้อยยอด จังหวัดประจวบคีรีขันธ์ 77180
                         </div>
-                        <div>โทร: {{ $company->phone }} <br> อีเมล: {{ $company->email }}</div>
+                        <div>อีเมล: {{ $company->email }}</div>
                         <a class="cta"
-                            href="tel:{{ preg_replace('/\D/', '', $company->phone) ?: $company->phone }}">ติดต่อสอบถาม</a>
+                            href="https://lin.ee/Tr3tCjy">ติดต่อสอบถาม</a>
                     </section>
                 </div>
             @else
@@ -418,10 +418,9 @@
                         <div style="color: #3B82F6; font-weight: 500; font-size: 16px;">ข้อมูลผู้ผลิต</div>
                         <div>{{ $company->name }}</div>
                         <div>สำนักงานใหญ่: {{ $company->address }}</div>
-                        <div>โทร: {{ $company->phone }}</div>
                         <div>อีเมล: {{ $company->email }}</div>
 
-                        <a class="cta" href="tel:{{ preg_replace('/\D/', '', $company->phone) ?: $company->phone }}">
+                        <a class="cta" href="https://lin.ee/Tr3tCjy">
                             ติดต่อสอบถาม
                         </a>
                     </section>
