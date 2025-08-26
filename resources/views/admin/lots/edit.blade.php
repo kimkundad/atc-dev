@@ -365,7 +365,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const $extraDetail = $('#additional_production_detail');
 
     function toggleExtraSection(categoryId) {
-        if (parseInt(categoryId) === 3) {
+        if (parseInt(categoryId) === 3 || parseInt(categoryId) === 1) {
             $extraDetail.hide();
         } else {
             $extraDetail.show();

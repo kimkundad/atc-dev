@@ -118,17 +118,7 @@
                                                     placeholder="รหัสล่าสุด" />
                                             </div>
 
-                                            <div class="col-md-6">
-                                                <label class="form-label">Class</label>
-                                                <input type="text" class="form-control" name="class1" value="{{ old('class1') }}"
-                                                    placeholder="1" />
-                                            </div>
 
-                                            <div class="col-md-6">
-                                                <label class="form-label">Type</label>
-                                                <input type="text" class="form-control" name="type1" value="{{ old('type1') }}"
-                                                    placeholder="1" />
-                                            </div>
 
                                         </div>
                                     </div>
@@ -155,6 +145,18 @@
                                                 <label class="form-label">เลข Stock กรม</label>
                                                 <input type="text" class="form-control" name="stock_no"
                                                     placeholder="รายการสินค้า" />
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Class</label>
+                                                <input type="text" class="form-control" name="class1" value="{{ old('class1') }}"
+                                                    placeholder="1" />
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Type</label>
+                                                <input type="text" class="form-control" name="type1" value="{{ old('type1') }}"
+                                                    placeholder="1" />
                                             </div>
 
                                             <div class="col-12">
@@ -395,7 +397,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const $extraDetail = $('#additional_production_detail');
 
     function toggleExtraSection(catId) {
-        if (parseInt(catId) === 3) {
+        if (parseInt(catId) === 3 || parseInt(catId) === 1) {
             $extraDetail.hide(); // ซ่อนเมื่อ id = 3
         } else {
             $extraDetail.show(); // แสดงเมื่อ id อื่น
