@@ -13,58 +13,50 @@ class PublicQrController extends Controller
     //
 
 
-        public function show(string $code)
-    {
-        $qr = QRCode::where('qr_code', $code)
-            // ->where('is_active', true)
-            ->with(['lot.product.category']) // สำคัญ: eager load category
-            ->first();
+public function show(string $code)
+{
+    $qr = QRCode::where('qr_code', $code)
+        ->with(['lot.product.category'])
+        ->first();
 
-        // ไม่มีข้อมูล -> โยนไปหน้า empty state
-        if (!$qr || !$qr->lot || !$qr->lot->product) {
-            return view('public.qr.show', [
-                'qr'        => $qr,
-                'lot'       => null,
-                'product'   => null,
-                'productImg'=> null,
-                'mfgTh'     => null,
-                'company'   => $this->companyInfo(), // ฟังก์ชันเดิมที่คุณใช้ดึงข้อมูลบริษัท
-            ]);
-        }
-
-        $lot     = $qr->lot;
-        $product = $lot->product;
-
-       // dd($lot);
-
-      //  dd($product);
-
-        // รูปสินค้า: เอาจากหมวดก่อน ถ้าไม่มีก็จาก product ถ้าไม่มีก็ placeholder
-        $productImg = $product->category?->img
-            ?? $product->image_url
-            ?? asset('assets/media/illustrations/blank.png');
-
-        // วันที่ไทย (ถ้ามี)
-        $mfgTh = $lot->mfg_date
-            ? Carbon::parse($lot->mfg_date)->translatedFormat('j F Y')
-            : null;
-
+    // ไม่มีข้อมูล หรือ inactive → ส่งไปหน้า empty state
+    if (!$qr || !$qr->lot || !$qr->lot->product || $qr->is_active == 0) {
         return view('public.qr.show', [
             'qr'        => $qr,
-            'lot'       => $lot,
-            'product'   => $product,
-            'productImg'=> $productImg,
-            'mfgTh'     => $mfgTh,
+            'lot'       => null,
+            'product'   => null,
+            'productImg'=> null,
+            'mfgTh'     => null,
             'company'   => $this->companyInfo(),
-
-            // เพิ่มนี้เพื่อให้ Blade มองเห็น
-            'docs' => collect([
-                ['label' => 'โหลดเอกสาร', 'url' => $lot->galvanize_cert_path ? Storage::disk('spaces')->url($lot->galvanize_cert_path) : null],
-                ['label' => 'โหลดเอกสาร', 'url' => $lot->steel_cert_path ? Storage::disk('spaces')->url($lot->steel_cert_path) : null],
-                ['label' => 'โหลดเอกสาร', 'url' => $lot->official_cert_file ? Storage::disk('spaces')->url($lot->official_cert_file) : null],
-            ])->filter(fn($d) => $d['url']),
-                    ]);
+        ]);
     }
+
+    $lot     = $qr->lot;
+    $product = $lot->product;
+
+    $productImg = $product->category?->img
+        ?? $product->image_url
+        ?? asset('assets/media/illustrations/blank.png');
+
+    $mfgTh = $lot->mfg_date
+        ? Carbon::parse($lot->mfg_date)->translatedFormat('j F Y')
+        : null;
+
+    return view('public.qr.show', [
+        'qr'        => $qr,
+        'lot'       => $lot,
+        'product'   => $product,
+        'productImg'=> $productImg,
+        'mfgTh'     => $mfgTh,
+        'company'   => $this->companyInfo(),
+        'docs'      => collect([
+            ['label' => 'โหลดเอกสาร', 'url' => $lot->galvanize_cert_path ? Storage::disk('spaces')->url($lot->galvanize_cert_path) : null],
+            ['label' => 'โหลดเอกสาร', 'url' => $lot->steel_cert_path ? Storage::disk('spaces')->url($lot->steel_cert_path) : null],
+            ['label' => 'โหลดเอกสาร', 'url' => $lot->official_cert_file ? Storage::disk('spaces')->url($lot->official_cert_file) : null],
+        ])->filter(fn($d) => $d['url']),
+    ]);
+}
+
 
 
     public function companyInfo(){
