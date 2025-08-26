@@ -108,17 +108,7 @@
                                         </div>
 
 
-                                        <div class="col-md-6">
-                                                <label class="form-label">Class</label>
-                                                <input type="text" class="form-control" name="class1" value="{{ old('class1', $lot->class1) }}"
-                                                    placeholder="1" />
-                                            </div>
 
-                                            <div class="col-md-6">
-                                                <label class="form-label">Type</label>
-                                                <input type="text" class="form-control" name="type1" value="{{ old('type1', $lot->type1) }}"
-                                                    placeholder="1" />
-                                            </div>
 
 
                                     </div>
@@ -145,6 +135,18 @@
                                             <input type="text" class="form-control" name="stock_no"
                                                    value="{{ old('stock_no', $lot->stock_no) }}" />
                                         </div>
+
+                                        <div class="col-md-6">
+                                                <label class="form-label">Class</label>
+                                                <input type="text" class="form-control" name="class1" value="{{ old('class1', $lot->class1) }}"
+                                                    placeholder="1" />
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Type</label>
+                                                <input type="text" class="form-control" name="type1" value="{{ old('type1', $lot->type1) }}"
+                                                    placeholder="1" />
+                                            </div>
 
                                         <div class="col-12">
                                             <label class="form-label">หมายเหตุเพิ่มเติม</label>
