@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>ATC Traffic | QR Scan</title>
+    <title>ระบบตรวจสอบข้อมูลสินค้าออนไลน์ผ่าน QR Code (Traceability System)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="shortcut icon" href="{{ asset('assets/media/logos/favicon.ico') }}" />
 

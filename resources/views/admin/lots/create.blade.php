@@ -1,7 +1,7 @@
 @extends('admin.layouts.template')
 
 @section('title')
-    <title>ATC</title>
+    <title>ระบบตรวจสอบข้อมูลสินค้าออนไลน์ผ่าน QR Code (Traceability System)</title>
 @stop
 @section('stylesheet')
 

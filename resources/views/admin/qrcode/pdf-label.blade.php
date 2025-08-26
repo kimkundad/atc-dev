@@ -86,7 +86,7 @@ margin-top: -5px
         @if(!empty($logo))
           <img src="{{ $logo }}" class="logo"><br>
         @endif
-        <div class="text-bold">บริษัท เอ ที ซี ทราฟฟิค จำกัด</div>
+        <div class="text-bold">ระบบตรวจสอบข้อมูลสินค้าออนไลน์ผ่าน QR Code (Traceability System)</div>
         <div class="line">วันที่ผลิต {{ $mfg_th }}</div>
         <div class="title">Lot : {{ $lot_no }}</div>
         <div class="lineC">{{ $class1 }} &nbsp;&nbsp;&nbsp; {{ $type1 }}</div>

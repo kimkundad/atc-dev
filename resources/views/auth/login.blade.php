@@ -2,7 +2,7 @@
 <html lang="en">
 	<!--begin::Head-->
 	<head>
-		<title>เข้าสู่ระบบ</title>
+		<title>เข้าสู่ระบบ ระบบตรวจสอบข้อมูลสินค้าออนไลน์ผ่าน QR Code (Traceability System)</title>
 		<meta charset="utf-8" />
 
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
