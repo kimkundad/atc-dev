@@ -140,3 +140,4 @@ Route::get('/admin/api/lot-no/check/{lot_no}', [App\Http\Controllers\LotNumberCo
     ->name('ajax.lot-next');
 
 });
+
