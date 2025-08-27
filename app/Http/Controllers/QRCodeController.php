@@ -101,8 +101,8 @@ if (!empty($qr->lot->type1)) {
     $pdf = Pdf::loadView('admin.qrcode.pdf-label', $data)
             ->setPaper($customPaper, 'portrait');
 
-  //  return $pdf->download('QR-' . $qr->qr_code . '.pdf');
- return $pdf->stream();
+    return $pdf->download('QR-' . $qr->qr_code . '.pdf');
+// return $pdf->stream();
 }
 
     // คืนรายการ “ล็อต” เฉพาะของประเภทที่เลือก
