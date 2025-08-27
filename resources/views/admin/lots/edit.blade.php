@@ -82,7 +82,7 @@
 
 
                                 {{-- รายละเอียดการผลิต --}}
-                                <div  class="border rounded p-6">
+                                <div  class="border rounded p-6 mb-10">
                                     <h4 class="fw-bold mb-5">รายละเอียดการผลิต</h4>
                                     <div class="row g-5">
                                         <div class="col-md-4">
@@ -128,6 +128,28 @@
                                     </div>
                                 </div>
 
+
+                                <div id="myClass" class="border rounded p-6 mb-10">
+                                        <div class="row g-5">
+
+                                        <div class="col-md-6">
+                                                <label class="form-label">Class</label>
+                                                <input type="text" class="form-control" name="class1" value="{{ old('class1', $lot->class1) }}"
+                                                    placeholder="1" />
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Type</label>
+                                                <input type="text" class="form-control" name="type1" value="{{ old('type1', $lot->type1) }}"
+                                                    placeholder="1" />
+                                            </div>
+                                        </div>
+                                </div>
+
+
+
+
+
                                 {{-- รายละเอียดการผลิต (เพิ่มเติม) --}}
                                 <div id="additional_production_detail" class="border rounded p-6">
                                     <h4 class="fw-bold mb-5">รายละเอียดการผลิต (เพิ่มเติม)</h4>
@@ -157,17 +179,7 @@
                                                    value="{{ old('stock_no', $lot->stock_no) }}" />
                                         </div>
 
-                                        <div class="col-md-6">
-                                                <label class="form-label">Class</label>
-                                                <input type="text" class="form-control" name="class1" value="{{ old('class1', $lot->class1) }}"
-                                                    placeholder="1" />
-                                            </div>
 
-                                            <div class="col-md-6">
-                                                <label class="form-label">Type</label>
-                                                <input type="text" class="form-control" name="type1" value="{{ old('type1', $lot->type1) }}"
-                                                    placeholder="1" />
-                                            </div>
 
                                         <div class="col-12">
                                             <label class="form-label">หมายเหตุเพิ่มเติม</label>
@@ -384,22 +396,31 @@ function updateLotNo() {
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const $category = $('#category_id');
+    const $cat = $('#category_id');
     const $extraDetail = $('#additional_production_detail');
+    const $myClass = $('#myClass');
 
-    function toggleExtraSection(categoryId) {
-        if (parseInt(categoryId) === 3 || parseInt(categoryId) === 1) {
-            $extraDetail.hide();
+    function toggleExtraSection(catId) {
+        if (parseInt(catId) === 3) {
+            $extraDetail.hide(); // ซ่อนเมื่อ id = 3
         } else {
-            $extraDetail.show();
+            $extraDetail.show(); // แสดงเมื่อ id อื่น
+        }
+
+        if(parseInt(catId) === 2){
+            $myClass.show();
+        }else{
+            $myClass.hide();
         }
     }
 
-    $category.on('change', function () {
+    // เมื่อมีการเลือกประเภทสินค้าใหม่
+    $cat.on('change select2:select', function () {
         toggleExtraSection(this.value);
     });
 
-    toggleExtraSection($category.val());
+    // เรียกครั้งแรกเมื่อโหลดหน้า
+    toggleExtraSection($cat.val());
 });
 </script>
 <script>

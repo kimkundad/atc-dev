@@ -126,6 +126,25 @@
                                         </div>
                                     </div>
 
+                                    <div id="myClass" class="border rounded p-6 mb-10">
+                                        <div class="row g-5">
+
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Class</label>
+                                                <input type="text" class="form-control" name="class1" value="{{ old('class1') }}"
+                                                    placeholder="1" />
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Type</label>
+                                                <input type="text" class="form-control" name="type1" value="{{ old('type1') }}"
+                                                    placeholder="1" />
+                                            </div>
+
+                                        </div>
+                                    </div>
+
                                     {{-- รายละเอียดการผลิต (เพิ่มเติม) --}}
                                     <div id="additional_production_detail" class="border rounded p-6">
                                         <h4 class="fw-bold mb-5">รายละเอียดการผลิต (เพิ่มเติม)</h4>
@@ -150,17 +169,7 @@
                                                     placeholder="รายการสินค้า" />
                                             </div>
 
-                                            <div class="col-md-6">
-                                                <label class="form-label">Class</label>
-                                                <input type="text" class="form-control" name="class1" value="{{ old('class1') }}"
-                                                    placeholder="1" />
-                                            </div>
 
-                                            <div class="col-md-6">
-                                                <label class="form-label">Type</label>
-                                                <input type="text" class="form-control" name="type1" value="{{ old('type1') }}"
-                                                    placeholder="1" />
-                                            </div>
 
                                             <div class="col-12">
                                                 <label class="form-label">หมายเหตุเพิ่มเติม</label>
@@ -396,12 +405,19 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
     const $cat = $('#category_id');
     const $extraDetail = $('#additional_production_detail');
+    const $myClass = $('#myClass');
 
     function toggleExtraSection(catId) {
-        if (parseInt(catId) === 3 || parseInt(catId) === 1) {
+        if (parseInt(catId) === 3) {
             $extraDetail.hide(); // ซ่อนเมื่อ id = 3
         } else {
             $extraDetail.show(); // แสดงเมื่อ id อื่น
+        }
+
+        if(parseInt(catId) === 2){
+            $myClass.show();
+        }else{
+            $myClass.hide();
         }
     }
 
