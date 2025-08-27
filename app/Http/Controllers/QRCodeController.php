@@ -75,6 +75,17 @@ public function download(\App\Models\QRCode $qr)
 
     file_put_contents($qrPublicPath, $result->getString());
 
+    // $qr->lot->category_id = 1 ใช้ img/label/Lighting.png
+    // $qr->lot->category_id = 2 ใช้ img/label/Guardrail.png
+    // $qr->lot->category_id = 3 ใช้ img/label/Thermoplastic.png
+
+    $logoBanPath = match(optional($qr->lot)->category_id) {
+    1       => public_path('img/label/Lighting.png'),
+    2       => public_path('img/label/Guardrail.png'),
+    3       => public_path('img/label/Thermoplastic.png'),
+    default => public_path('img/logo-ban.jpg'), // fallback ถ้าไม่เข้าเงื่อนไข
+};
+
     $data = [
     'company' => 'ATC TRAFFIC Co., Ltd.',
     'mfg_th' => optional($qr->lot)->mfg_date
@@ -85,7 +96,7 @@ public function download(\App\Models\QRCode $qr)
     'tc_mark' => 'มอก. 248-2567',
     'qr_path' => $qrPublicPath,
     'logo' => public_path('img/logo-stick.jpg'),
-    'logo_ban' => public_path('img/logo-ban.jpg'),
+    'logo_ban'=> $logoBanPath,
 ];
 
 // เงื่อนไขใส่เฉพาะถ้ามีค่า
@@ -101,8 +112,8 @@ if (!empty($qr->lot->type1)) {
     $pdf = Pdf::loadView('admin.qrcode.pdf-label', $data)
             ->setPaper($customPaper, 'portrait');
 
-    return $pdf->download('QR-' . $qr->qr_code . '.pdf');
-// return $pdf->stream();
+  //  return $pdf->download('QR-' . $qr->qr_code . '.pdf');
+ return $pdf->stream();
 }
 
     // คืนรายการ “ล็อต” เฉพาะของประเภทที่เลือก
