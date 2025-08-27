@@ -102,7 +102,7 @@
                     <tbody class="fw-semibold text-gray-700">
                       @forelse($users as $u)
                         @php
-                          $roleNames = $u->roles->pluck('name');
+                          $roleNames = $u->roles->pluck('description');
                           $firstRole = $roleNames->first();
                           $badgeMap  = [
                             'superadmin'=>'badge-light-danger',

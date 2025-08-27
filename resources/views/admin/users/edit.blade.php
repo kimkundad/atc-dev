@@ -112,7 +112,7 @@
                       @foreach($roles as $r)
                         <option value="{{ $r->id }}"
                                 {{ (int)old('role_id', $currentRoleId) === (int)$r->id ? 'selected' : '' }}>
-                          {{ $r->name }}
+                          {{ $r->description }}
                         </option>
                       @endforeach
                     </select>

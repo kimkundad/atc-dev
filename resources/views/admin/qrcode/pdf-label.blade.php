@@ -79,6 +79,7 @@ margin-top: -5px
   }
 
 </style>
+
 <body>
   <table>
     <tr>
@@ -86,10 +87,16 @@ margin-top: -5px
         @if(!empty($logo))
           <img src="{{ $logo }}" class="logo"><br>
         @endif
-        <div class="text-bold">ระบบตรวจสอบข้อมูลสินค้าออนไลน์ผ่าน QR Code (Traceability System)</div>
+        <div class="text-bold">บริษัท เอ ที ซี ทราฟฟิค จำกัด</div>
         <div class="line">วันที่ผลิต {{ $mfg_th }}</div>
         <div class="title">Lot : {{ $lot_no }}</div>
-        <div class="lineC">{{ $class1 }} &nbsp;&nbsp;&nbsp; {{ $type1 }}</div>
+        @if(!empty($class1) || !empty($type1))
+    <div class="lineC">
+        {{ $class1 ?? '' }}
+        @if(!empty($class1) && !empty($type1)) &nbsp;&nbsp;&nbsp; @endif
+        {{ $type1 ?? '' }}
+    </div>
+@endif
 
         <img src="{{ $logo_ban }}" class="logo_ban">
       </td>

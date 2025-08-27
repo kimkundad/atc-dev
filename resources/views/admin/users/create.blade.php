@@ -98,7 +98,7 @@
                                             <option value="">ระบุประเภทผู้ใช้งาน</option>
                                             @foreach($roles as $role)
                                                 <option value="{{ $role->id }}" {{ old('role_id')==$role->id ? 'selected':'' }}>
-                                                    {{ $role->name }}
+                                                    {{ $role->description }}
                                                 </option>
                                             @endforeach
                                         </select>

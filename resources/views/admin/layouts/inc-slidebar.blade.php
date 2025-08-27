@@ -245,7 +245,7 @@
 @php
     $u = Auth::user();
     $fullName = trim(($u->first_name ?? '').' '.($u->last_name ?? '')) ?: ($u->name ?? $u->username ?? 'ผู้ใช้');
-    $roleName = optional($u->roles->first())->name ?? 'user';
+    $roleName = optional($u->roles->first())->description ?? 'user';
     $avatarUrl = $u->avatar_url ?? ($u->profile_photo_url ?? null);
 @endphp
 

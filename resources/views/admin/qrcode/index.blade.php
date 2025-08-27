@@ -199,7 +199,7 @@
                                             <li><a class="dropdown-item" href="{{ route('qrcode.show',$qr->id) }}">แสดงข้อมูลสินค้า</a></li>
                                             @endif
                                             @if(Auth::user()->hasPermission('qr.download'))
-                                            <li><a class="dropdown-item" href="{{ route('qrcode.download',$qr->id) }}">ดาวน์โหลดไฟล์</a></li>
+                                            <li><a class="dropdown-item" target="_blank" href="{{ route('qrcode.download',$qr->id) }}">ดาวน์โหลดไฟล์</a></li>
                                             @endif
                                             <li><hr class="dropdown-divider"></li>
                                             @if(Auth::user()->hasPermission('qr.delete'))

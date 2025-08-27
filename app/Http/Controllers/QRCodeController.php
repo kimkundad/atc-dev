@@ -76,18 +76,25 @@ public function download(\App\Models\QRCode $qr)
     file_put_contents($qrPublicPath, $result->getString());
 
     $data = [
-        'company' => 'ATC TRAFFIC Co., Ltd.',
-        'mfg_th' => optional($qr->lot)->mfg_date
-    ? \Carbon\Carbon::parse($qr->lot->mfg_date)->format('d/m/') . ( \Carbon\Carbon::parse($qr->lot->mfg_date)->year + 543 )
-    : '-',
-        'lot_no' => optional($qr->lot)->lot_no ?? '-',
-        'class1' => 'Class'. $qr->lot->class1,
-        'type1' => 'Type'. $qr->lot->type1,
-        'tc_mark' => 'มอก. 248-2567',
-        'qr_path' => $qrPublicPath, // ✅ relative path
-        'logo' => public_path('img/logo-stick.jpg'), // ✅ relative path เช่นกัน
-        'logo_ban' => public_path('img/logo-ban.jpg'),
-    ];
+    'company' => 'ATC TRAFFIC Co., Ltd.',
+    'mfg_th' => optional($qr->lot)->mfg_date
+        ? \Carbon\Carbon::parse($qr->lot->mfg_date)->format('d/m/') .
+          (\Carbon\Carbon::parse($qr->lot->mfg_date)->year + 543)
+        : '-',
+    'lot_no' => optional($qr->lot)->lot_no ?? '-',
+    'tc_mark' => 'มอก. 248-2567',
+    'qr_path' => $qrPublicPath,
+    'logo' => public_path('img/logo-stick.jpg'),
+    'logo_ban' => public_path('img/logo-ban.jpg'),
+];
+
+// เงื่อนไขใส่เฉพาะถ้ามีค่า
+if (!empty($qr->lot->class1)) {
+    $data['class1'] = 'Class ' . $qr->lot->class1;
+}
+if (!empty($qr->lot->type1)) {
+    $data['type1'] = 'Type ' . $qr->lot->type1;
+}
 
     $customPaper = [0, 0, 500, 278]; // หน่วยเป็น point (1 point = 1/72 inch)
 
