@@ -206,7 +206,7 @@
                                         <input type="hidden" name="{{ $k }}" value="{{ $v }}">
                                     @endforeach
                                     <select name="per_page" class="form-select form-select-sm w-120px" onchange="this.form.submit()">
-                                        @foreach([12,25] as $n)
+                                        @foreach([25,50,100] as $n)
                                             <option value="{{ $n }}" @selected(($perPage ?? 12)==$n)>{{ $n }} รายการ</option>
                                         @endforeach
                                     </select>

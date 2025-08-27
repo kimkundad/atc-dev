@@ -228,8 +228,9 @@
                                 <span class="text-muted">แสดง</span>
                                 @php $pp = (int) request('per_page', $items->perPage()); @endphp
                                 <select name="per_page" class="form-select form-select-sm w-100px" onchange="this.form.submit()">
-                                    <option value="12" @selected($pp===12)>12 รายการ</option>
                                     <option value="25" @selected($pp===25)>25 รายการ</option>
+                                    <option value="25" @selected($pp===50)>50 รายการ</option>
+                                    <option value="25" @selected($pp===100)>100 รายการ</option>
                                 </select>
 
                                 {{-- คืนค่าฟิลเตอร์เดิม --}}

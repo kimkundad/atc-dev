@@ -128,11 +128,33 @@
               </table>
             </div>
 
-            {{-- Footer: pagination --}}
-            <div class="d-flex flex-wrap justify-content-between align-items-center mt-5">
-              <div class="text-muted">หน้า {{ $logs->currentPage() }} / {{ $logs->lastPage() }}</div>
-              {{ $logs->onEachSide(1)->links('vendor.pagination.metronic') }}
-            </div>
+            {{-- Footer: page size + pagination --}}
+<div class="d-flex flex-wrap justify-content-between align-items-center p-5">
+  <div class="d-flex align-items-center gap-3">
+    <span class="text-muted">แสดง</span>
+    <form method="GET" action="{{ route('activity-logs.activity') }}">
+      @foreach(request()->except('per_page','page') as $k=>$v)
+        <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+      @endforeach
+      <select name="per_page" id="perPage" class="form-select form-select-sm w-120px"
+        onchange="this.form.submit()">
+  @foreach([25,50,100] as $n)
+    <option value="{{ $n }}" @selected($perPage == $n)>
+      {{ $n }} รายการ
+    </option>
+  @endforeach
+</select>
+    </form>
+  </div>
+
+  <div class="d-flex align-items-center gap-3">
+    <span class="text-muted">หน้า {{ $logs->currentPage() }} / {{ $logs->lastPage() }}</span>
+    {{ $logs->onEachSide(1)->links('vendor.pagination.metronic') }}
+  </div>
+</div>
+
+
+
           </div>
         </div>
 
@@ -145,33 +167,30 @@
 
 @section('scripts')
 <script>
-  // เปลี่ยน role/per_page แล้ว submit อัตโนมัติ
-  document.getElementById('roleFilter')?.addEventListener('change', () => {
-    document.getElementById('filterForm').submit();
-  });
-  document.getElementById('perPage')?.addEventListener('change', () => {
-    document.getElementById('filterForm').submit();
-  });
-</script>
-
-<script>
 (function(){
   const form = document.getElementById('filterForm');
   const role = document.getElementById('roleFilter');
+  const perPage = document.getElementById('perPage');
 
   const submitNow = () => {
-    // รีเซ็ต page -> 1 ทุกครั้งที่เปลี่ยน filter
+    // reset page → 1
     const pg = form.querySelector('input[name="page"]');
     if (pg) pg.remove();
     form.requestSubmit ? form.requestSubmit() : form.submit();
   };
 
   role?.addEventListener('change', submitNow);
+  perPage?.addEventListener('change', submitNow);
+
   if (window.jQuery) {
     const $role = window.jQuery(role);
-    $role.on('select2:select', submitNow);
-    $role.on('select2:clear', submitNow);
+    $role.on('select2:select select2:clear', submitNow);
   }
+
+  perPage?.addEventListener('change', () => {
+  perPage.form.submit();   // ใช้ form ของ select ตัวเอง
+});
 })();
 </script>
 @stop
+

@@ -6,6 +6,7 @@ use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\LotNumber;
 
 class ActivityLogController extends Controller
 {
@@ -23,7 +24,7 @@ public function index(Request $request)
 {
     $q       = trim((string) $request->input('q'));
     $role    = $request->input('role');      // ชื่อ role จากตาราง roles.name
-    $perPage = (int) $request->input('per_page', 12);
+    $perPage = (int) $request->input('per_page', 25);
 
     // รายการ role สำหรับ dropdown (มาจากตาราง roles)
     $roles = Role::orderBy('name')->pluck('name')->all();
