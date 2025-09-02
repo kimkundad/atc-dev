@@ -92,7 +92,7 @@
                                         <div class="row g-5">
                                             <div class="col-md-4">
                                                 <label class="form-label required">ล็อตนัมเบอร์</label>
-                                                <input type="text" class="form-control" name="lot_no" id="lot_no" placeholder="ระบบจะเติมให้"  readonly/>
+                                                <input type="text" class="form-control" name="lot_no" id="lot_no" placeholder="ระบบจะเติมให้"  />
                                                 <small id="lotError" class="text-danger d-none">ล็อตนัมเบอร์นี้มีอยู่แล้ว</small>
                                             </div>
                                             <div class="col-md-4">

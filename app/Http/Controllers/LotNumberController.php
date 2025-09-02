@@ -98,7 +98,7 @@ class LotNumberController extends Controller
         // จะไม่ใช้ lot_no ที่ผู้ใช้กรอก แต่คง validation ไว้เป็น required เฉย ๆ ก็ได้ หรือถอดทิ้ง
         // ถ้าจะให้ฟอร์มส่งมาเป็น read-only/empty ก็ลบ required ได้
         // 'lot_no' => ['nullable', Rule::unique('lot_numbers', 'lot_no')],
-
+        'lot_no'    => ['required'],
         'mfg_date'    => ['required','date'],
         'mfg_time'    => ['nullable','date_format:H:i'],
         'qty'         => ['required','integer','min:1'],
@@ -122,36 +122,41 @@ class LotNumberController extends Controller
     $mfgDate  = Carbon::parse($validated['mfg_date']);
 
     // ===== คำนวณเลขล็อตด้วยทรานแซคชัน + lockForUpdate() เพื่อกันชนกัน =====
-    $lotNoFinal = DB::transaction(function () use ($product) {
-        $today  = Carbon::today();                // ใช้วันปัจจุบันตาม requirement
-        $suffix = $today->format('ym');           // YYMM เช่น 2508
-        $format = trim($product->lot_format ?: $product->sku);
-        $prefix = "{$format}-{$suffix}-";         // เช่น "GR 3.2-2508-"
+    // $lotNoFinal = DB::transaction(function () use ($product) {
+    //     $today  = Carbon::today();                // ใช้วันปัจจุบันตาม requirement
+    //     $suffix = $today->format('ym');           // YYMM เช่น 2508
+    //     $format = trim($product->lot_format ?: $product->sku);
+    //     $prefix = "{$format}-{$suffix}-";         // เช่น "GR 3.2-2509-001"
 
-        // ดึงตัวท้ายสุดภายใต้ prefix เดียวกัน (และสินค้าตัวเดียวกัน) พร้อม lock แถว
-        $last = LotNumber::where('product_id', $product->id)
-                ->where('lot_no', 'like', $prefix.'%')
-                ->lockForUpdate()
-                ->orderBy('lot_no', 'desc')
-                ->first();
 
-        $lastSeq = 0;
-        if ($last && preg_match('/(\d{3})$/', $last->lot_no, $m)) {
-            $lastSeq = (int) $m[1];
-        }
-        $nextSeq = $lastSeq + 1;
-        $seq3    = str_pad($nextSeq, 3, '0', STR_PAD_LEFT);
 
-        $final   = $prefix.$seq3;
+    //     // ดึงตัวท้ายสุดภายใต้ prefix เดียวกัน (และสินค้าตัวเดียวกัน) พร้อม lock แถว
+    //     $last = LotNumber::where('product_id', $product->id)
+    //             ->where('lot_no', 'like', $prefix.'%')
+    //             ->lockForUpdate()
+    //             ->orderBy('lot_no', 'desc')
+    //             ->first();
 
-        // กันซ้ำอีกชั้น (ในกรณีสุดวิสัย)
-        if (LotNumber::where('product_id', $product->id)->where('lot_no', $final)->exists()) {
-            // เลขชน ให้เด้งเป็นข้อยกเว้นเพื่อให้ทรานแซคชัน rollback
-            throw new \RuntimeException('เลขล็อตซ้ำ กรุณาลองใหม่');
-        }
+    //     $lastSeq = 0;
+    //     if ($last && preg_match('/(\d{3})$/', $last->lot_no, $m)) {
+    //         $lastSeq = (int) $m[1];
+    //     }
+    //     $nextSeq = $lastSeq + 1;
+    //     $seq3    = str_pad($nextSeq, 3, '0', STR_PAD_LEFT);
 
-        return $final;
-    });
+    //     $final   = $prefix.$seq3;
+
+    //     // กันซ้ำอีกชั้น (ในกรณีสุดวิสัย)
+    //     if (LotNumber::where('product_id', $product->id)->where('lot_no', $final)->exists()) {
+    //         // เลขชน ให้เด้งเป็นข้อยกเว้นเพื่อให้ทรานแซคชัน rollback
+    //         throw new \RuntimeException('เลขล็อตซ้ำ กรุณาลองใหม่');
+    //     }
+
+    //     return $final;
+    // });
+    $lotNoFinal = $validated['lot_no'];
+    //GR 3.2-2509-001
+   // dd($lotNoFinal);
 
     // ===== อัปโหลดไฟล์แนบ =====
     $paths = [];
