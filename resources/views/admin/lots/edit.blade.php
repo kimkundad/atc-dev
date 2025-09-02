@@ -88,7 +88,7 @@
                                         <div class="col-md-4">
                                             <label class="form-label required">ล็อตนัมเบอร์</label>
                                             <input type="text" class="form-control" name="lot_no" id="lot_no"
-                                                value="{{ old('lot_no', $lot->lot_no) }}" readonly/>
+                                                value="{{ old('lot_no', $lot->lot_no) }}" />
                                             <small id="lotError" class="text-danger d-none">ล็อตนัมเบอร์นี้มีอยู่แล้ว</small>
                                         </div>
 
