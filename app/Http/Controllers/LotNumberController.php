@@ -366,7 +366,7 @@ public function update(Request $request, LotNumber $lot)
         'qty'         => ['required','integer','min:0'],
         'product_no_old' => ['nullable','max:100'],
         'product_no_new' => ['nullable','max:100'],
-        'received_date'  => ['nullable','date'],
+        'received_date'  => ['nullable'],
         'supplier'       => ['nullable','max:150'],
         'stock_no'       => ['nullable','max:100'],
         'remark'         => ['nullable','max:2000'],
