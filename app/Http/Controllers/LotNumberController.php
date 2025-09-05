@@ -446,7 +446,7 @@ public function update(Request $request, LotNumber $lot)
         'qty'             => $request->qty,
         'product_no_old'  => $request->product_no_old,
         'product_no_new'  => $request->product_no_new,
-        'received_date'   => $request->received_date,
+        'receive_date'   => $request->received_date,
         'supplier'        => $request->supplier,
         'stock_no'        => $request->stock_no,
         'remark'          => $request->remark,
