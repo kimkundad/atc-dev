@@ -250,7 +250,6 @@ document.addEventListener('DOMContentLoaded', function () {
     dateFormat: 'Y-m-d',
     altInput: true,
     altFormat: 'd/m/Y',
-    defaultDate: now
   });
 
   flatpickr('#mfg_date', {
