@@ -158,7 +158,7 @@
 
 
                                         <div class="col-md-4">
-                                                <label class="form-label">วันรับเข้า</label>
+                                                <label class="form-label">วันรับเข้า {{ $lot->receive_date }}</label>
                                                 <input type="text"
                                                     class="form-control"
                                                     id="received_date"
