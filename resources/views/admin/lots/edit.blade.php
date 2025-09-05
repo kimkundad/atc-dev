@@ -163,7 +163,7 @@
                                                     class="form-control"
                                                     id="received_date"
                                                     name="received_date"
-                                                    value="{{ old('received_date', $lot->received_date ? \Carbon\Carbon::parse($lot->received_date)->format('Y-m-d') : '') }}"
+                                                    value="{{ old('received_date', $lot->receive_date ? \Carbon\Carbon::parse($lot->receive_date)->format('Y-m-d') : '') }}"
                                                     placeholder="เลือกวันรับเข้า">
                                             </div>
 
