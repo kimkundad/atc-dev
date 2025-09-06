@@ -70,8 +70,8 @@
                         <h4 class="fw-bold mb-5">รายละเอียดการผลิต (เพิ่มเติม)</h4>
                         <div class="row g-5">
                             <div class="col-md-4">
-                                <label class="form-label">วันรับเข้า</label>
-                                <input type="text" readonly class="form-control" value="{{ \Carbon\Carbon::parse($lot->received_date)->format('d F Y') }}">
+                                <label class="form-label">วันรับเข้า  </label>
+                                <input type="text" readonly class="form-control" value="{{ $lot->received_date ? \Carbon\Carbon::parse($lot->received_date)->format('d F Y') : '' }}">
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Supplier</label>
