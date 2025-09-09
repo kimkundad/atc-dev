@@ -106,7 +106,12 @@
                   <div class="col-md-6">
                     <label class="form-label">วันที่ผลิต</label>
                     <input type="text" class="form-control form-control-solid"
-                           value="{{ $lot->mfg_date ? \Carbon\Carbon::parse($lot->mfg_date)->format('d/m/Y') : '-' }}{{ $lot->mfg_time ? ' '.\Carbon\Carbon::parse($lot->mfg_time)->format('H:i') : '' }}"
+                           value="{{ $lot->mfg_date
+      ? \Carbon\Carbon::parse($lot->mfg_date)
+            ->locale('th')                               // ใช้ภาษาไทย
+            ->translatedFormat('j F ')                   // วัน + เดือนภาษาไทย
+        . (\Carbon\Carbon::parse($lot->mfg_date)->year + 543)  // ปี พ.ศ.
+      : '' }} {{ $lot->mfg_time ? ' '.\Carbon\Carbon::parse($lot->mfg_time)->format('H:i') : '' }}"
                            readonly>
                   </div>
                   <div class="col-md-6 d-none d-md-block"></div>
@@ -129,7 +134,12 @@
                   <div class="col-md-6">
                     <label class="form-label">วันที่รับชุบ</label>
                     <input type="text" class="form-control form-control-solid"
-                           value="{{ $lot->receive_date ? \Carbon\Carbon::parse($lot->receive_date)->format('d/m/Y') : '-' }}" readonly>
+                           value="{{ $lot->received_date
+      ? \Carbon\Carbon::parse($lot->received_date)
+            ->locale('th')                               // ใช้ภาษาไทย
+            ->translatedFormat('j F ')                   // วัน + เดือนภาษาไทย
+        . (\Carbon\Carbon::parse($lot->received_date)->year + 543)  // ปี พ.ศ.
+      : '' }}" readonly>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Supplier</label>

@@ -71,7 +71,12 @@
                         <div class="row g-5">
                             <div class="col-md-4">
                                 <label class="form-label">วันรับเข้า  </label>
-                                <input type="text" readonly class="form-control" value="{{ $lot->received_date ? \Carbon\Carbon::parse($lot->received_date)->format('d F Y') : '' }}">
+                                <input type="text" readonly class="form-control" value="{{ $lot->received_date
+      ? \Carbon\Carbon::parse($lot->received_date)
+            ->locale('th')                               // ใช้ภาษาไทย
+            ->translatedFormat('j F ')                   // วัน + เดือนภาษาไทย
+        . (\Carbon\Carbon::parse($lot->received_date)->year + 543)  // ปี พ.ศ.
+      : '' }}">
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Supplier</label>

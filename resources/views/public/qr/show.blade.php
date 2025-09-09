@@ -354,7 +354,12 @@
                     </div>
                     <div class="kv">
                         <div class="label">วันที่ผลิต</div>
-                        <div class="value">{{ $mfgTh ?? '-' }}</div>
+                        <div class="value">{{ $mfgTh
+      ? \Carbon\Carbon::parse($mfgTh)
+            ->locale('th')                               // ใช้ภาษาไทย
+            ->translatedFormat('j F ')                   // วัน + เดือนภาษาไทย
+        . (\Carbon\Carbon::parse($mfgTh)->year + 543)  // ปี พ.ศ.
+      : '' }}</div>
                     </div>
 
                     <div class="section-title">เอกสาร / ใบรับรอง</div>
