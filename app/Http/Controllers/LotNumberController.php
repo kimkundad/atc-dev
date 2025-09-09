@@ -205,7 +205,7 @@ class LotNumberController extends Controller
         'product_no_new' => $productNoNew,
         'run_range'      => $runRange,
 
-        'receive_date'   => $request->input('received_date'),
+        'received_date'   => $request->input('received_date'),
         'supplier'       => $request->input('supplier'),
         'stock_no'       => $request->input('stock_no'),
         'remark'         => $request->input('remark'),
