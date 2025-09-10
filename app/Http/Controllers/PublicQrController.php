@@ -34,7 +34,7 @@ public function show(string $code)
     $lot     = $qr->lot;
     $product = $lot->product;
 
-    $productImg = $product->category?->img
+    $productImg = $product->img
         ?? $product->image_url
         ?? asset('assets/media/illustrations/blank.png');
 
