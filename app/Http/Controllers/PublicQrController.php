@@ -34,9 +34,13 @@ public function show(string $code)
     $lot     = $qr->lot;
     $product = $lot->product;
 
-    $productImg = $product->img
+  //  dd($product);
+
+    $productImg = $product->imgs
         ?? $product->image_url
         ?? asset('assets/media/illustrations/blank.png');
+
+
 
     $mfgTh = $lot->mfg_date
         ? Carbon::parse($lot->mfg_date)->translatedFormat('j F Y')
