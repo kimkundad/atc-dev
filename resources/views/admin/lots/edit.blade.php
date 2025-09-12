@@ -273,17 +273,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const $cat  = $('#category_id');
     const $prod = $('#product_id');
 
-    // ✅ Flag เพื่อไม่ให้ updateLotNo() ทำงานตอน load หน้า
-    let isInitialLoad = true;
+    // ✅ ทำให้เห็นได้ทุกสคริปต์
+    window.isInitialLoad = true;
 
     function loadProducts(catId, selectedId = null) {
         if (!catId) {
-            $prod.html('<option value="">เลือกสินค้า</option>').trigger('change');
+            $prod.html('<option value="">เลือกสินค้า</option>').trigger('change', [true]); // ส่ง init flag
             return;
         }
         $prod.prop('disabled', true)
              .html('<option value="">กำลังโหลด...</option>')
-             .trigger('change');
+             .trigger('change', [true]); // ส่ง init flag
 
         $.get('{{ route('ajax.products-by-category2') }}', { category_id: catId }, function (rows) {
             let html = '<option value="">เลือกสินค้า</option>';
@@ -293,10 +293,14 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             $prod.html(html).prop('disabled', false);
 
-            // ดึงค่า lot_format ใหม่หลังโหลด และปิด flag
+            // ดึงค่า lot_format ของ option ที่ถูกเลือกไว้ (ไม่ต้องไปแก้ lot_no)
+            const $sel = $prod.find('option:selected');
+            window.currentLotFormat = $sel.attr('data-lot-format') || '';
+
+            // 🔸 ถ้าจำเป็นต้องกระตุ้น change เพื่อให้ UI อื่น ๆ รู้ ให้ส่ง init=true
             setTimeout(() => {
-                $prod.trigger('change');
-                isInitialLoad = false; // ✅ เปิดให้ JS ดำเนินต่อ
+                $prod.trigger('change', [true]); // <-- บอกว่าเป็นการ init
+                window.isInitialLoad = false;     // ✅ เปิดให้ event ต่อไปทำงานปกติ
             }, 100);
         });
     }
@@ -309,53 +313,54 @@ document.addEventListener('DOMContentLoaded', function () {
     if (initialCat) {
         loadProducts(initialCat, selectedProdId);
     } else {
-        isInitialLoad = false; // หากไม่โหลด product
+        window.isInitialLoad = false; // หากไม่โหลด product
     }
 });
 </script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    let currentLotFormat = $('select[name="product_id"] option:selected').attr('data-lot-format') || '';
+    // ✅ เก็บ lot format ปัจจุบันไว้ระดับ global เช่นกัน
+    window.currentLotFormat = $('select[name="product_id"] option:selected').attr('data-lot-format') || '';
 
-    $('#product_id').on('change', function () {
-        if (typeof isInitialLoad !== 'undefined' && isInitialLoad) return;
+    // รับพารามิเตอร์ที่สองเป็น init flag
+    $('#product_id').on('change', function (e, isInit = false) {
+        // ถ้าเป็นช่วง initial load หรือเป็น change ที่มาจากการ init → ไม่ต้องอัปเดต lot_no
+        if (window.isInitialLoad || isInit === true) return;
 
         const selected = $(this).find('option:selected');
-        currentLotFormat = selected.attr('data-lot-format') || '';
-        console.log('เมื่อเปลี่ยนสินค้า -->', currentLotFormat);
+        window.currentLotFormat = selected.attr('data-lot-format') || '';
+        console.log('เมื่อเปลี่ยนสินค้า -->', window.currentLotFormat);
         updateLotNo();
     });
 
-    {{-- $('#mfg_date').on('change', function () {
-        updateLotNo();
-    }); --}}
+    // ถ้าอยากให้เปลี่ยนล็อตตามวันที่ผลิต ค่อยเปิดใช้
+    // $('#mfg_date').on('change', updateLotNo);
 
-function updateLotNo() {
-    const dateStr = $('#mfg_date').val();
-    if (!dateStr || !currentLotFormat) return;
+    function updateLotNo() {
+        const dateStr = $('#mfg_date').val();
+        if (!dateStr || !window.currentLotFormat) return;
 
-    const [year, month] = dateStr.split('-');
-    if (!year || !month) return;
+        const [year, month] = dateStr.split('-');
+        if (!year || !month) return;
 
-    const suffix = year.slice(-2) + month.padStart(2, '0');
-    const generatedPrefix = `${currentLotFormat}-${suffix}-`;
+        const suffix = year.slice(-2) + month.padStart(2, '0');
+        const generatedPrefix = `${window.currentLotFormat}-${suffix}-`;
 
-    const currentValue = $('#lot_no').val();
+        const currentValue = $('#lot_no').val();
 
-    let trailing = '';
-    if (currentValue && currentValue.includes('-')) {
-        const parts = currentValue.split('-');
-        if (parts.length >= 3) {
-            trailing = parts.slice(2).join('-'); // เก็บเลขต่อท้าย เช่น "009" หรือ "009-XX"
+        let trailing = '';
+        if (currentValue && currentValue.includes('-')) {
+            const parts = currentValue.split('-');
+            if (parts.length >= 3) {
+                trailing = parts.slice(2).join('-'); // เก็บเลขต่อท้าย เช่น "009" หรือ "009-XX"
+            }
         }
+
+        const finalLot = generatedPrefix + trailing;
+        $('#lot_no').val(finalLot);
+        checkLotDuplication(finalLot);
     }
-
-    const finalLot = generatedPrefix + trailing;
-    $('#lot_no').val(finalLot);
-    checkLotDuplication(finalLot);
-}
-
 
     const $lotInput = $('#lot_no');
     const $errorMsg = $('#lotError');
